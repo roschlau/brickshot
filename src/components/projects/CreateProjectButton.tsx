@@ -82,10 +82,12 @@ export function ImportProjectDialog({
       try {
         const fileContent = JSON.parse(await file.text()) as Infer<typeof ProjectFile>
         if (!validate(ProjectFile, fileContent)) {
+          console.error(`File didn't validate`)
           return null
         }
         return fileContent
-      } catch {
+      } catch (e) {
+        console.error('Error opening file', e)
         return null
       }
     }
