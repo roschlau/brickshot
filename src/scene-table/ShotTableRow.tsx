@@ -7,6 +7,8 @@ import { EditableTextCell } from './EditableTextCell.tsx'
 import { useMutation, useQuery } from 'convex/react'
 import { api } from '../../convex/_generated/api'
 import { Id } from '../../convex/_generated/dataModel'
+import { Skeleton } from '@/components/ui/skeleton.tsx'
+import { CircleAlertIcon } from 'lucide-react'
 
 export function ShotTableRow({
   shotId,
@@ -100,10 +102,17 @@ export function ShotTableRow({
     await updateShot({ shotId, data: { status } })
   }
 
-  if (!shot) return null
+  if (shot === null) {
+    return (
+      <div className={'col-start-1 col-span-full h-10 pl-4 gap-2 flex flex-row items-center text-destructive'}>
+        <CircleAlertIcon size={20} />
+        Shot {shotId} could not be loaded.
+      </div>
+    )
+  }
 
   return (
-    <>
+    !shot ? <LoadingShotTableRow /> : <>
       <div
         className={'col-start-1 grid grid-flow-col place-content-start items-center pl-2 group relative' + (shot.status === 'wip' ? ' bg-violet-900!' : '')}
       >
@@ -193,4 +202,14 @@ export function ShotTableRow({
       </div>
     </>
   )
+}
+
+export function LoadingShotTableRow() {
+  return (<>
+    <div className={'col-start-1 h-10 min-w-12 justify-self-stretch px-2 py-3'}><Skeleton className={'size-full'} /></div>
+    <div className={'col-start-3 h-10 min-w-12 justify-self-stretch px-2 py-3'}><Skeleton className={'size-full'} /></div>
+    <div className={'col-start-4 h-10 justify-self-stretch px-2 py-3'}><Skeleton className={'size-full'} /></div>
+    <div className={'col-start-5 h-10 justify-self-stretch px-2 py-3'}><Skeleton className={'size-full'} /></div>
+    <div className={'col-start-6 h-10 min-w-10 justify-self-stretch px-2 py-3'}><Skeleton className={'size-full'} /></div>
+  </>)
 }

@@ -1,13 +1,13 @@
 import { getSceneNumber, nextShotAutoNumber } from '../data-model/codes.ts'
 import { ShotData } from '../data-model/shot.ts'
-import { ShotTableRow } from './ShotTableRow.tsx'
+import { LoadingShotTableRow, ShotTableRow } from './ShotTableRow.tsx'
 import { Icon } from '../ui-atoms/Icon.tsx'
 import { ShotStatus } from '../data-model/shot-status.ts'
 import { Doc } from '../../convex/_generated/dataModel'
 import { useMutation, useQuery } from 'convex/react'
 import { api } from '../../convex/_generated/api'
 import { byOrder } from '@/lib/sorting.ts'
-import { Spinner } from '@/components/ui/spinner.tsx'
+import { Skeleton } from '@/components/ui/skeleton.tsx'
 
 interface ShotViewModel {
   indexInScene: number,
@@ -121,13 +121,14 @@ export function SceneTable({ sceneId, sceneIndex, shotStatusFilter }: {
           <Icon code={'delete_forever'} />
         </button>
       </div>
-      {shotTableRows ?? <Spinner className={'size-8'}/>}
-      {shots && <button
-        className={'col-start-1 col-span-full mb-4 rounded-b-md p-2 pb-3 text-start text-slate-300 hover:text-slate-100 hover:bg-slate-700'}
-        onClick={() => void addNewShot(shots.length)}
+      {shotTableRows ?? <LoadingShotTableRow/>}
+      <button
+        className={'col-start-1 col-span-full mb-4 rounded-b-md p-2 pb-3 text-start text-slate-300 enabled:hover:text-slate-100 enabled:hover:bg-slate-700'}
+        disabled={!shots}
+        onClick={() => void addNewShot(shots?.length ?? 0)}
       >
-        + Add Shot
-      </button>}
+        {shots ? '+ Add Shot' : <Skeleton className={'h-4 w-20'}/>}
+      </button>
     </>
   )
 }
