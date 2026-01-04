@@ -111,7 +111,7 @@ export function SceneTable({ sceneId, sceneIndex, shotStatusFilter }: {
           type={'text'}
           className={'grow self-stretch my-0.5 p-2 font-bold text-lg rounded-sm bg-transparent border-none placeholder-muted-foreground placeholder:font-normal'}
           value={scene?.description ?? ''}
-          placeholder={'Add Scene Description'}
+          placeholder={'Scene ' + sceneNumber.toString()}
           onChange={(event) => void updateScene({ sceneId, data: { description: event.target.value } })}
         />
         <button
