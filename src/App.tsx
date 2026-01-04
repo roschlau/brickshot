@@ -13,13 +13,18 @@ import { Button } from '@/components/ui/button.tsx'
 
 function App() {
   const [openedProjectId, setOpenedProjectId] = useState(null as Id<'projects'> | null)
+  const markOpened = useMutation(api.projects.markOpened)
+  const openProject = async (projectId: Id<'projects'>) => {
+    await markOpened({ projectId })
+    setOpenedProjectId(projectId)
+  }
   if (openedProjectId) {
     return <Project
       projectId={openedProjectId}
       onCloseProjectClicked={() => setOpenedProjectId(null)}
     />
   } else {
-    return <Projects onProjectSelected={setOpenedProjectId}/>
+    return <Projects onProjectSelected={(id) => void openProject(id)}/>
   }
 }
 

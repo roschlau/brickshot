@@ -36,3 +36,7 @@ export function byOrder<T, U>(order: readonly U[], getKey?: (value: T) => U): (a
     return aIndex - bIndex
   }
 }
+
+export function byDesc<T>(accessor: (element: T) => number) {
+  return (a: T, b: T) => accessor(b) - accessor(a)
+}

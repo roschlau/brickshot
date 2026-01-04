@@ -28,6 +28,9 @@ import { useState } from 'react'
 import { CreateProjectButton } from '@/components/projects/CreateProjectButton.tsx'
 import toast from 'react-hot-toast'
 import { saveFile } from '@/lib/files.ts'
+import { displayFullTime, displayRelativeTime } from '@/lib/time.ts'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip.tsx'
+import { byDesc } from '@/lib/sorting.ts'
 
 export function Projects({
   onProjectSelected,
@@ -38,6 +41,7 @@ export function Projects({
   if (!projects) {
     return <Spinner className={'size-12'} />
   }
+  projects.sort(byDesc(project => project.lastOpenedTime ?? project._creationTime))
   return projects.length === 0
     ? <ProjectsEmptyState />
     : (
@@ -100,7 +104,18 @@ function ProjectTile({
         <ItemContent>
           <ItemTitle>{projectName}</ItemTitle>
           {projectDetails
-            ? <ItemDescription>{projectDetails.scenesCount.toString()} Scenes</ItemDescription>
+            ? <ItemDescription>
+              <span>{projectDetails.scenesCount.toString()} Scene</span>
+              &nbsp;|&nbsp;
+              <Tooltip>
+                <TooltipTrigger asChild><span>{displayRelativeTime(projectDetails.lastOpenedTime ?? projectDetails._creationTime)}</span></TooltipTrigger>
+                <TooltipContent>
+                  {projectDetails.lastOpenedTime &&
+                    <>Last Opened: {displayFullTime(projectDetails.lastOpenedTime)}<br /></>}
+                  Created: {displayFullTime(projectDetails._creationTime)}
+                </TooltipContent>
+              </Tooltip>
+            </ItemDescription>
             : <Skeleton className={'h-5.25 w-16 rounded-full'} />
           }
         </ItemContent>

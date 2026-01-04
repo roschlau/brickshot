@@ -46,6 +46,20 @@ export const create = mutation({
   ),
 })
 
+export const markOpened = mutation({
+  args: {
+    projectId: v.id('projects'),
+  },
+  handler: (ctx, { projectId }) => withPermission(ctx,
+    editProject(projectId),
+    async () => {
+      await ctx.db.patch('projects', projectId, {
+        lastOpenedTime: new Date().getTime(),
+      })
+    },
+  ),
+})
+
 export const update = mutation({
   args: {
     projectId: v.id('projects'),

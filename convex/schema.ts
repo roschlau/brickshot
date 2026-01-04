@@ -11,6 +11,7 @@ export default defineSchema({
   projects: defineTable({
     name: v.string(),
     owner: v.id('users'),
+    lastOpenedTime: v.optional(v.number()),
   }).index('by_owner', ['owner']),
   scenes: defineTable({
     project: v.id('projects'),
