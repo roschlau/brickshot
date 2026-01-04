@@ -7,6 +7,7 @@ import { Doc } from '../../convex/_generated/dataModel'
 import { useMutation, useQuery } from 'convex/react'
 import { api } from '../../convex/_generated/api'
 import { byOrder } from '@/lib/sorting.ts'
+import { Spinner } from '@/components/ui/spinner.tsx'
 
 interface ShotViewModel {
   indexInScene: number,
@@ -20,8 +21,8 @@ export function SceneTable({ sceneId, sceneIndex, shotStatusFilter }: {
   shotStatusFilter: ShotStatus[],
 }) {
   const scene = useQuery(api.scenes.get, { id: sceneId })
-  const shots = useQuery(api.shots.getForScene, { sceneId }) ?? []
-  if (scene) {
+  const shots = useQuery(api.shots.getForScene, { sceneId })
+  if (scene && shots) {
     shots.sort(byOrder(scene.shotOrder, shot => shot._id))
   }
   const createShot = useMutation(api.shots.create)
@@ -40,21 +41,23 @@ export function SceneTable({ sceneId, sceneIndex, shotStatusFilter }: {
   )
   const deleteScene = useMutation(api.scenes.deleteScene)
 
-  const lockedShotNumbers = shots.map(it => it.lockedNumber).filter((it): it is number => it !== null)
+  const lockedShotNumbers = shots
+    ?.map(it => it.lockedNumber).filter((it): it is number => it !== null)
+    ?? []
   const shotNumbers: Record<number, number> = {}
   const sceneNumber = getSceneNumber(scene ?? { lockedNumber: null }, sceneIndex)
   const addNewShot = async (index: number) => {
     const shotId = await createShot({
       sceneId,
       atIndex: index,
-      shot: { location: (shots[index - 1] ?? shots[index])?.location ?? undefined },
+      shot: { location: (shots?.[index - 1] ?? shots?.[index])?.location ?? undefined },
     })
     if (!shotId) {
       throw Error('Shot could not be created')
     }
   }
   const shotViewModels = shots
-    .map((shot, shotIndex) => {
+    ?.map((shot, shotIndex) => {
       const shotNumber = shot.lockedNumber ?? nextShotAutoNumber(shotNumbers[shotIndex - 1] ?? 0, lockedShotNumbers)
       shotNumbers[shotIndex] = shotNumber
       return {
@@ -64,7 +67,7 @@ export function SceneTable({ sceneId, sceneIndex, shotStatusFilter }: {
       } satisfies ShotViewModel
     })
   const shotTableRows = shotViewModels
-    .filter(({ shotData }) => shotStatusFilter.length === 0 || shotStatusFilter.includes(shotData.status))
+    ?.filter(({ shotData }) => shotStatusFilter.length === 0 || shotStatusFilter.includes(shotData.status))
     .map(({ shotData, indexInScene, shotNumber }) => {
       const swapWithPrevious = async () => {
         if (!scene) {
@@ -95,7 +98,7 @@ export function SceneTable({ sceneId, sceneIndex, shotStatusFilter }: {
         />
       )
     })
-  return shotTableRows.length === 0 && shots.length !== 0 ? null : (
+  return shotTableRows?.length === 0 && shots?.length !== 0 ? null : (
     <>
       <div
         id={'scene-' + sceneNumber.toString()}
@@ -118,13 +121,13 @@ export function SceneTable({ sceneId, sceneIndex, shotStatusFilter }: {
           <Icon code={'delete_forever'} />
         </button>
       </div>
-      {shotTableRows}
-      <button
+      {shotTableRows ?? <Spinner className={'size-8'}/>}
+      {shots && <button
         className={'col-start-1 col-span-full mb-4 rounded-b-md p-2 pb-3 text-start text-slate-300 hover:text-slate-100 hover:bg-slate-700'}
         onClick={() => void addNewShot(shots.length)}
       >
         + Add Shot
-      </button>
+      </button>}
     </>
   )
 }
