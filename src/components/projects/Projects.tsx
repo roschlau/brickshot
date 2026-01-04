@@ -105,7 +105,7 @@ function ProjectTile({
           <ItemTitle>{projectName}</ItemTitle>
           {projectDetails
             ? <ItemDescription>
-              <span>{projectDetails.scenesCount.toString()} Scene</span>
+              <span>{projectDetails.scenesCount.toString()} Scene(s)</span>
               &nbsp;|&nbsp;
               <Tooltip>
                 <TooltipTrigger asChild><span>{displayRelativeTime(projectDetails.lastOpenedTime ?? projectDetails._creationTime)}</span></TooltipTrigger>

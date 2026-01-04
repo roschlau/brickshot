@@ -20,7 +20,7 @@ export function displayRelativeTime(timestamp: number): string {
   }
   if (diff < 1000 * 60 * 60) {
     const minutes = Math.floor(diff / (1000 * 60))
-    return `${minutes.toString()} minutes ago`
+    return `${minutes.toString()} minute(s) ago`
   }
   if (diff < 1000 * 60 * 60 * 24 && now.getDay() === date.getDay()) {
     return shortTime.format(date)
