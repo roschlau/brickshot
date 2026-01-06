@@ -88,6 +88,10 @@ export const deleteProject = mutation({
   ),
 })
 
+/**
+ * Implemented as a mutation because this is a rarely called one-time action that shouldn't be subscribed to. It might
+ * also produce side effects in the future, like starting the export asynchronously rather than returning it immediately.
+ */
 export const exportProject = mutation({
   args: {
     projectId: v.id('projects'),
