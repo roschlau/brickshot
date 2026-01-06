@@ -22,17 +22,25 @@ import { Input } from '@/components/ui/input.tsx'
 import { ImportableProject } from '@/data-model/project-import.ts'
 import { Spinner } from '@/components/ui/spinner.tsx'
 import { Field, FieldDescription, FieldError, FieldLabel } from '@/components/ui/field.tsx'
+import { Id } from '../../../convex/_generated/dataModel'
 
-export function CreateProjectButton({ text }: {
+export function CreateProjectButton({ text, onProjectCreated }: {
   text: string,
+  onProjectCreated: (projectId: Id<'projects'>) => void
 }) {
   const createProject = useMutation(api.projects.create)
   const [importDialogOpen, setImportDialogOpen] = useState(false)
+  const createProjectClicked = async () => {
+    const projectId = await createProject({})
+    if (projectId) {
+      onProjectCreated(projectId)
+    }
+  }
   return (
     <ButtonGroup>
       <Button
         variant={'default'}
-        onClick={() => void createProject()}
+        onClick={() => void createProjectClicked()}
       >
         <PlusIcon />
         {text}
@@ -57,7 +65,11 @@ export function CreateProjectButton({ text }: {
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
-      <ImportProjectDialog open={importDialogOpen} onOpenChange={setImportDialogOpen}/>
+      <ImportProjectDialog
+        open={importDialogOpen}
+        onOpenChange={setImportDialogOpen}
+        onProjectImported={onProjectCreated}
+      />
     </ButtonGroup>
   )
 }
@@ -65,9 +77,11 @@ export function CreateProjectButton({ text }: {
 export function ImportProjectDialog({
   open,
   onOpenChange,
+  onProjectImported,
 }: {
   open: boolean,
   onOpenChange: (open: boolean) => void,
+  onProjectImported: (projectId: Id<'projects'>) => void
 }) {
   const importProject = useMutation(api.projects.importProject)
   const [project, setProject] = useState(null as null | ImportableProject)
@@ -96,10 +110,11 @@ export function ImportProjectDialog({
   const importClicked = async () => {
     if (!project) return
     setImporting(true)
-    await importProject({ project })
+    const projectId = await importProject({ project })
     setImporting(false)
     setProject(null)
     onOpenChange(false)
+    onProjectImported(projectId)
   }
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

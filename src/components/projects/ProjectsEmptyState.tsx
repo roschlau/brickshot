@@ -6,8 +6,13 @@ import { AccountControls } from '@/AccountControls.tsx'
 import { PrivacyDialog } from '@/components/projects/PrivacyDialog.tsx'
 import { SimpleTooltip } from '@/components/ui/tooltip.tsx'
 import { CreateProjectButton } from '@/components/projects/CreateProjectButton.tsx'
+import { Id } from '../../../convex/_generated/dataModel'
 
-export function ProjectsEmptyState() {
+export function ProjectsEmptyState({
+  onProjectCreated,
+}: {
+  onProjectCreated: (projectId: Id<'projects'>) => void,
+}) {
   return (
     <Empty>
       <EmptyHeader>
@@ -30,7 +35,10 @@ export function ProjectsEmptyState() {
         <div className="flex gap-2">
           <AccountControls variant={'secondary'} />
           <Authenticated>
-            <CreateProjectButton text={'Create Project'}/>
+            <CreateProjectButton
+              text={'Create Project'}
+              onProjectCreated={onProjectCreated}
+            />
           </Authenticated>
           <Unauthenticated>
             <SimpleTooltip text={'Log in to create a project'}>

@@ -47,7 +47,7 @@ export function Projects({
   projects.sort(byDesc(project => project.lastOpenedTime ?? project._creationTime))
 
   return projects.length === 0
-    ? <ProjectsEmptyState />
+    ? <ProjectsEmptyState onProjectCreated={onProjectSelected}/>
     : (
       <div className={'flex flex-col w-xl max-w-full gap-4 p-2'}>
         <div className={'flex flex-row items-center gap-2 mb-10'}>
@@ -69,7 +69,10 @@ export function Projects({
               <SearchIcon/>
             </InputGroupAddon>
           </InputGroup>
-          <CreateProjectButton text={'New'} />
+          <CreateProjectButton
+            text={'New'}
+            onProjectCreated={onProjectSelected}
+          />
         </div>
         <ul className={'flex flex-col gap-4'}>
           {projects.filter(project => !searchQuery || project.name.includes(searchQuery)).map(project => (
