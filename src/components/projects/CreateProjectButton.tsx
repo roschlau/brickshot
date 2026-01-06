@@ -19,9 +19,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog.tsx'
 import { Input } from '@/components/ui/input.tsx'
-import { validate } from 'convex-helpers/validators'
-import { ProjectFile } from '@/data-model/project-file.ts'
-import { Infer } from 'convex/values'
+import { ImportableProject } from '@/data-model/project-import.ts'
 import { Spinner } from '@/components/ui/spinner.tsx'
 import { Field, FieldDescription, FieldError, FieldLabel } from '@/components/ui/field.tsx'
 
@@ -72,7 +70,7 @@ export function ImportProjectDialog({
   onOpenChange: (open: boolean) => void,
 }) {
   const importProject = useMutation(api.projects.importProject)
-  const [project, setProject] = useState(null as null | Infer<typeof ProjectFile>)
+  const [project, setProject] = useState(null as null | ImportableProject)
   const [invalidProjectFile, setInvalidProjectFile] = useState(false)
   const onFileSelected = async (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -80,12 +78,7 @@ export function ImportProjectDialog({
     setInvalidProjectFile(false)
     const parseFile = async () => {
       try {
-        const fileContent = JSON.parse(await file.text()) as Infer<typeof ProjectFile>
-        if (!validate(ProjectFile, fileContent)) {
-          console.error(`File didn't validate`)
-          return null
-        }
-        return fileContent
+        return ImportableProject.parse(JSON.parse(await file.text()))
       } catch (e) {
         console.error('Error opening file', e)
         return null

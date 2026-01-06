@@ -4,9 +4,10 @@ import { v } from 'convex/values'
 import { editProject, isLoggedIn, withPermission } from './auth'
 import { getManyFrom } from 'convex-helpers/server/relationships'
 import { api } from './_generated/api'
-import { ProjectFile } from '../src/data-model/project-file'
+import { ImportableProject } from '../src/data-model/project-import'
 import { Id } from './_generated/dataModel'
 import { byOrder } from '../src/lib/sorting'
+import { zodToConvex } from 'convex-helpers/server/zod'
 
 export const getAll = query({
   args: {},
@@ -122,7 +123,7 @@ export const exportProject = mutation({
 
 export const importProject = mutation({
   args: {
-    project: ProjectFile,
+    project: zodToConvex(ImportableProject),
   },
   handler: (ctx, { project }) => withPermission(ctx,
     isLoggedIn,
@@ -145,7 +146,7 @@ export const importProject = mutation({
             status: shot.status,
             lockedNumber: shot.lockedNumber ?? null,
             description: shot.description,
-            location: shot.location,
+            location: shot.location ?? '',
             notes: shot.notes,
           }))
         }

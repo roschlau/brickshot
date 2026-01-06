@@ -3,8 +3,10 @@ import { v } from 'convex/values'
 import { authTables } from '@convex-dev/auth/server'
 import { literals } from 'convex-helpers/validators'
 import { shotStatusValues } from '../src/data-model/shot-status'
+import { z } from 'zod'
 
 export const vShotStatus = literals(...shotStatusValues)
+export const zShotStatus = z.literal(shotStatusValues)
 
 export default defineSchema({
   ...authTables,
