@@ -2,13 +2,12 @@ import { shotCode } from '../../../data-model/codes.ts'
 import clipboard from 'clipboardy'
 import toast from 'react-hot-toast'
 import { nextStatus, statusTooltip } from '../../../data-model/shot-status.ts'
-import { Icon } from '../../../ui-atoms/Icon.tsx'
 import { EditableTextCell } from './EditableTextCell.tsx'
 import { useMutation, useQuery } from 'convex/react'
 import { api } from '../../../../convex/_generated/api'
 import { Id } from '../../../../convex/_generated/dataModel'
 import { Skeleton } from '@/components/ui/skeleton.tsx'
-import { CircleAlertIcon } from 'lucide-react'
+import { ArrowDownUpIcon, CircleAlertIcon, LockIcon, PenIcon, PlusIcon, Trash2Icon } from 'lucide-react'
 
 import { ShotStatusIcon } from '@/components/project/scene-table/ShotStatusIcon.tsx'
 import { cn } from '@/lib/utils.ts'
@@ -120,16 +119,16 @@ export function ShotTableRow({
         className={'col-start-1 grid grid-flow-col place-content-start items-center pl-2 group relative' + (shot.status === 'wip' ? ' bg-violet-900!' : '')}
       >
         {showAddBeforeButton && <button
-          className={'absolute top-0 left-0 -translate-x-full -translate-y-1/2 opacity-0 group-hover:opacity-100'}
+          className={'absolute top-0 left-0 -translate-x-full -translate-y-1/2 opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-foreground'}
           onClick={onAddBefore}
         >
-          <Icon code={'add'} />
+          <PlusIcon size={16} className={'m-0.5'}/>
         </button>}
         {showSwapButton && <button
-          className={'absolute top-0 left-0 -translate-x-[200%] -translate-y-1/2 opacity-0 group-hover:opacity-100'}
+          className={'absolute top-0 left-0 -translate-x-[200%] -translate-y-1/2 opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-foreground'}
           onClick={onSwapWithPrevious}
         >
-          <Icon code={'swap_vert'} />
+          <ArrowDownUpIcon size={16} className={'m-0.5'}/>
         </button>}
         <button
           onClick={() => void cycleStatus()}
@@ -156,9 +155,9 @@ export function ShotTableRow({
         >
           {shotFullCode}
           {shot.lockedNumber === null &&
-            <Icon
-              code={'lock'}
-              className={'icon-size-20 opacity-0 group-hover:opacity-100 pl-1'}
+            <LockIcon
+              size={14}
+              className={'icon-size-20 opacity-0 group-hover:opacity-100 ml-1'}
             />
           }
         </button>
@@ -170,8 +169,8 @@ export function ShotTableRow({
             data-tooltip-content={'Edit Shotcode'}
             data-tooltip-place={'bottom'}
           >
-            <Icon
-              code={'edit'}
+            <PenIcon
+              size={14}
               className={'icon-size-20 text-slate-500 hover:text-slate-100'}
             />
           </button>
@@ -201,9 +200,9 @@ export function ShotTableRow({
       <div className="col-start-6 self-stretch hover:bg-red-900">
         <button
           onClick={() => void deleteShot({ shotId })}
-          className={'p-2 text-sm text-slate-500 hover:text-red-100 h-full'}
+          className={'h-full min-h-10 w-10 p-2 grid place-items-center text-sm text-slate-500 hover:text-red-100'}
         >
-          <Icon code={'delete_forever'} />
+          <Trash2Icon size={20} strokeWidth={1.5}/>
         </button>
       </div>
     </>

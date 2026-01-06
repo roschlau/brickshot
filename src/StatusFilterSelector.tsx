@@ -1,8 +1,8 @@
 import { ShotStatus, shotStatusValues } from './data-model/shot-status.ts'
 import { Listbox, ListboxButton, ListboxOption, ListboxOptions } from '@headlessui/react'
 import { byOrder } from './lib/sorting.ts'
-import { Icon } from './ui-atoms/Icon.tsx'
 import { ShotStatusIcon } from '@/components/project/scene-table/ShotStatusIcon.tsx'
+import { ListFilterIcon } from 'lucide-react'
 
 export function StatusFilterSelector({selected, onChange}: {
   selected: ShotStatus[],
@@ -14,7 +14,7 @@ export function StatusFilterSelector({selected, onChange}: {
         className={'border flex flex-row items-center gap-2 pl-3 pr-4 py-1 rounded-full hover:border-slate-400 hover:text-slate-100 ' +
           (selected.length === 0 ? 'border-slate-600 text-slate-500' : 'border-slate-500 text-slate-200')}
       >
-        <Icon code={'filter_list'}/>
+        <ListFilterIcon size={16}/>
         {selected.length === 0 ? 'Status' : (selected.join(', '))}
       </ListboxButton>
       <ListboxOptions anchor="bottom end" className="mt-2 rounded-sm bg-slate-700 shadow-xl">

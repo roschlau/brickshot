@@ -1,13 +1,13 @@
 import { getSceneNumber, nextShotAutoNumber } from '../../../data-model/codes.ts'
 import { ShotData } from '../../../data-model/shot.ts'
 import { LoadingShotTableRow, ShotTableRow } from './ShotTableRow.tsx'
-import { Icon } from '../../../ui-atoms/Icon.tsx'
 import { ShotStatus } from '../../../data-model/shot-status.ts'
 import { Doc } from '../../../../convex/_generated/dataModel'
 import { useMutation, useQuery } from 'convex/react'
 import { api } from '../../../../convex/_generated/api'
 import { byOrder } from '@/lib/sorting.ts'
 import { Skeleton } from '@/components/ui/skeleton.tsx'
+import { Trash2Icon } from 'lucide-react'
 
 interface ShotViewModel {
   indexInScene: number,
@@ -115,10 +115,10 @@ export function SceneTable({ sceneId, sceneIndex, shotStatusFilter }: {
           onChange={(event) => void updateScene({ sceneId, data: { description: event.target.value } })}
         />
         <button
-          className={'p-2 text-sm text-slate-500 hover:text-red-100 hover:bg-red-900 self-stretch'}
+          className={'w-10 grid place-items-center text-sm text-slate-500 hover:text-red-100 hover:bg-red-900 self-stretch'}
           onClick={() => void deleteScene({ sceneId })}
         >
-          <Icon code={'delete_forever'} />
+          <Trash2Icon size={20} strokeWidth={1.5}/>
         </button>
       </div>
       {shotTableRows ?? <LoadingShotTableRow/>}
