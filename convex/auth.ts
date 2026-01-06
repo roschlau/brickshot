@@ -42,7 +42,7 @@ export async function withPermission<A, T>(
   ctx: QueryCtx,
   permission: Permission<A>,
   handler: (authResult: NonNullable<A>) => Promise<T>,
-): Promise<T | null> {
+): Promise<T> {
   const permissionResult = await permission(ctx)
   if (!permissionResult) {
     throw new ConvexError({
