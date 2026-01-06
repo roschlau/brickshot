@@ -5,7 +5,7 @@ import { Id } from '../../../convex/_generated/dataModel'
 import { Button } from '@/components/ui/button.tsx'
 import { Item, ItemActions, ItemContent, ItemDescription, ItemTitle } from '@/components/ui/item.tsx'
 import { Skeleton } from '@/components/ui/skeleton.tsx'
-import { DownloadIcon, EllipsisVerticalIcon, TrashIcon } from 'lucide-react'
+import { DownloadIcon, EllipsisVerticalIcon, SearchIcon, TrashIcon } from 'lucide-react'
 import { AccountControls } from '@/AccountControls.tsx'
 import { Spinner } from '@/components/ui/spinner.tsx'
 import {
@@ -31,6 +31,7 @@ import { saveFile } from '@/lib/files.ts'
 import { displayFullTime, displayRelativeTime } from '@/lib/time.ts'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip.tsx'
 import { byDesc } from '@/lib/sorting.ts'
+import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group.tsx'
 
 export function Projects({
   onProjectSelected,
@@ -38,23 +39,40 @@ export function Projects({
   onProjectSelected: (projectId: Id<'projects'>) => void
 }) {
   const projects = useQuery(api.projects.getAll)
+  const [searchQuery, setSearchQuery] = useState<string>('')
+
   if (!projects) {
     return <Spinner className={'size-12'} />
   }
   projects.sort(byDesc(project => project.lastOpenedTime ?? project._creationTime))
+
   return projects.length === 0
     ? <ProjectsEmptyState />
     : (
-      <div className={'flex flex-col w-xl max-w-full gap-10 p-2'}>
-        <div className={'flex flex-row items-center gap-2'}>
-          <h1 className={'text-3xl my-4 grow'}>
+      <div className={'flex flex-col w-xl max-w-full gap-4 p-2'}>
+        <div className={'flex flex-row items-center gap-2 mb-10'}>
+          <h1 className={'text-3xl grow'}>
             Your Projects
           </h1>
           <AccountControls />
+        </div>
+        <div className={'flex flex-row items-center gap-2'}>
+          <InputGroup>
+            <InputGroupInput
+              type={'text'}
+              className={'no-default-focus-ring'}
+              placeholder={'Search project name'}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+            <InputGroupAddon>
+              <SearchIcon/>
+            </InputGroupAddon>
+          </InputGroup>
           <CreateProjectButton text={'New'} />
         </div>
         <ul className={'flex flex-col gap-4'}>
-          {projects.map(project => (
+          {projects.filter(project => !searchQuery || project.name.includes(searchQuery)).map(project => (
             <ProjectTile
               key={project._id}
               projectId={project._id}
