@@ -92,6 +92,7 @@ export const exportProject = mutation({
   args: {
     projectId: v.id('projects'),
   },
+  returns: zodToConvex(ImportableProject),
   handler: (ctx, { projectId }) => withPermission(ctx,
     editProject(projectId),
     async ({ project }) => {
@@ -125,6 +126,7 @@ export const importProject = mutation({
   args: {
     project: zodToConvex(ImportableProject),
   },
+  returns: v.id('projects'),
   handler: (ctx, { project }) => withPermission(ctx,
     isLoggedIn,
     async ({ userId }) => {
@@ -152,5 +154,6 @@ export const importProject = mutation({
         }
         await ctx.db.patch(sceneId, { shotOrder })
       }
+      return projectId as Id<'projects'>
     }),
 })
