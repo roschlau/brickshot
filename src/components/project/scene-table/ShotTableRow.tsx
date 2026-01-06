@@ -11,6 +11,7 @@ import { Skeleton } from '@/components/ui/skeleton.tsx'
 import { CircleAlertIcon } from 'lucide-react'
 
 import { ShotStatusIcon } from '@/components/project/scene-table/ShotStatusIcon.tsx'
+import { cn } from '@/lib/utils.ts'
 
 export function ShotTableRow({
   shotId,
@@ -136,7 +137,10 @@ export function ShotTableRow({
             void onStatusRightClicked()
             event.preventDefault()
           }}
-          className={shot.status === 'wip' ? 'text-slate-300 hover:text-slate-100' : 'text-slate-500 hover:text-slate-100'}
+          className={cn(
+            'translate-y-px',
+            shot.status === 'wip' ? 'text-slate-300 hover:text-slate-100' : 'text-slate-500 hover:text-slate-100',
+          )}
           data-tooltip-id={'tooltip'}
           data-tooltip-html={statusTooltip(shot.status)}
           data-tooltip-place={'bottom'}

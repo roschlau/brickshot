@@ -1,19 +1,25 @@
 import { ShotStatus } from '@/data-model/shot-status.ts'
-import { Icon } from '@/ui-atoms/Icon.tsx'
+import { CircleQuestionMarkIcon, LucideProps, SquareCheckIcon, SquareDotIcon, SquareIcon } from 'lucide-react'
+import * as react from 'react'
 
-export function ShotStatusIcon({ status }: { status: ShotStatus }) {
-  return <Icon code={statusIconCode(status)} />
+export function ShotStatusIcon({
+  status,
+  size = 20,
+  ...props
+}: { status: ShotStatus } & Omit<LucideProps, "ref"> & react.RefAttributes<SVGSVGElement>) {
+  const Comp = statusIconCode(status)
+  return <Comp size={size} {...props}/>
 }
 
-export function statusIconCode(status: ShotStatus): string {
+function statusIconCode(status: ShotStatus) {
   switch (status) {
   case 'unsure':
-    return 'help_center'
+    return CircleQuestionMarkIcon
   case 'default':
-    return 'check_box_outline_blank'
+    return SquareIcon
   case 'wip':
-    return 'filter_tilt_shift'
+    return SquareDotIcon
   case 'animated':
-    return 'check_box'
+    return SquareCheckIcon
   }
 }

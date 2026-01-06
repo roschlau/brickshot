@@ -11,7 +11,7 @@ export function StatusFilterSelector({selected, onChange}: {
   return (
     <Listbox value={selected} onChange={selected => onChange([...selected].sort(byOrder(shotStatusValues)))} multiple>
       <ListboxButton
-        className={'border border flex flex-row items-center gap-2 pl-3 pr-4 py-1 rounded-full hover:border-slate-400 hover:text-slate-100 ' +
+        className={'border flex flex-row items-center gap-2 pl-3 pr-4 py-1 rounded-full hover:border-slate-400 hover:text-slate-100 ' +
           (selected.length === 0 ? 'border-slate-600 text-slate-500' : 'border-slate-500 text-slate-200')}
       >
         <Icon code={'filter_list'}/>
