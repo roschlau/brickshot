@@ -1,7 +1,8 @@
-import {ShotStatus, shotStatusValues, statusIconCode} from './data-model/shot-status.ts'
-import {Listbox, ListboxButton, ListboxOption, ListboxOptions} from '@headlessui/react'
-import {byOrder} from './lib/sorting.ts'
-import {Icon} from './ui-atoms/Icon.tsx'
+import { ShotStatus, shotStatusValues } from './data-model/shot-status.ts'
+import { Listbox, ListboxButton, ListboxOption, ListboxOptions } from '@headlessui/react'
+import { byOrder } from './lib/sorting.ts'
+import { Icon } from './ui-atoms/Icon.tsx'
+import { ShotStatusIcon } from '@/components/project/scene-table/ShotStatusIcon.tsx'
 
 export function StatusFilterSelector({selected, onChange}: {
   selected: ShotStatus[],
@@ -21,7 +22,7 @@ export function StatusFilterSelector({selected, onChange}: {
           shotStatusValues.map(status => (
             <ListboxOption key={status} value={status}
                            className={'group flex flex-row items-center gap-2 p-2 cursor-pointer data-focus:bg-slate-600'}>
-              <Icon code={statusIconCode(status)}/>
+              <ShotStatusIcon status={status}/>
               <span className={'grow'}>{status}</span>
               <div className={'size-6 grid place-content-center'}>
                 <div

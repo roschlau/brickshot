@@ -1,7 +1,7 @@
 import { shotCode } from '../../../data-model/codes.ts'
 import clipboard from 'clipboardy'
 import toast from 'react-hot-toast'
-import { nextStatus, statusIconCode, statusTooltip } from '../../../data-model/shot-status.ts'
+import { nextStatus, statusTooltip } from '../../../data-model/shot-status.ts'
 import { Icon } from '../../../ui-atoms/Icon.tsx'
 import { EditableTextCell } from './EditableTextCell.tsx'
 import { useMutation, useQuery } from 'convex/react'
@@ -9,6 +9,8 @@ import { api } from '../../../../convex/_generated/api'
 import { Id } from '../../../../convex/_generated/dataModel'
 import { Skeleton } from '@/components/ui/skeleton.tsx'
 import { CircleAlertIcon } from 'lucide-react'
+
+import { ShotStatusIcon } from '@/components/project/scene-table/ShotStatusIcon.tsx'
 
 export function ShotTableRow({
   shotId,
@@ -139,7 +141,7 @@ export function ShotTableRow({
           data-tooltip-html={statusTooltip(shot.status)}
           data-tooltip-place={'bottom'}
         >
-          <Icon code={statusIconCode(shot.status)} />
+          <ShotStatusIcon status={shot.status}/>
         </button>
         <button
           onClick={() => void lockAndCopyShotCode()}

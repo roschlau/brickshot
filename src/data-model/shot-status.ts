@@ -20,19 +20,6 @@ export function nextStatus(current: ShotStatus): ShotStatus {
   }
 }
 
-export function statusIconCode(status: ShotStatus): string {
-  switch (status) {
-    case 'unsure':
-      return 'help_center'
-    case 'default':
-      return 'check_box_outline_blank'
-    case 'wip':
-      return 'filter_tilt_shift'
-    case 'animated':
-      return 'check_box'
-  }
-}
-
 export function statusTooltip(status: ShotStatus): string {
   switch (status) {
     case 'unsure':
