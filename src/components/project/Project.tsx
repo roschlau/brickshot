@@ -6,7 +6,6 @@ import { ShotStatus } from '@/data-model/shot-status.ts'
 import { SceneTable } from '@/components/project/scene-table/SceneTable.tsx'
 import { getSceneNumber } from '@/data-model/codes.ts'
 import { Button } from '@/components/ui/button.tsx'
-import { AccountControls } from '@/AccountControls.tsx'
 import { StatusFilterSelector } from '@/StatusFilterSelector.tsx'
 
 export function Project({
@@ -69,9 +68,8 @@ export function Project({
             variant={'outline'}
             onClick={onCloseProjectClicked}
           >
-            Close Project
+            Back to Projects
           </Button>
-          <AccountControls />
         </div>
         <div className={'self-stretch flex flex-row items-center'}>
           <div className={'grow flex flex-row items-center'}>
