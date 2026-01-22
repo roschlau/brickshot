@@ -23,6 +23,16 @@ export default tseslint.config(
                     "ignoreVoidOperator": true,
                 }
             ],
+          "@typescript-eslint/restrict-template-expressions": [
+            "error",
+            {
+              allowAny: true,
+              allowBoolean: true,
+              allowNullish: true,
+              allowNumber: true,
+              allowRegExp: true,
+            }
+          ]
         },
         languageOptions: {
             parserOptions: {
