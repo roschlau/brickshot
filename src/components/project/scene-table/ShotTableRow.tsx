@@ -7,10 +7,26 @@ import { useMutation, useQuery } from 'convex/react'
 import { api } from '../../../../convex/_generated/api'
 import { Id } from '../../../../convex/_generated/dataModel'
 import { Skeleton } from '@/components/ui/skeleton.tsx'
-import { ArrowDownUpIcon, CircleAlertIcon, LockIcon, PenIcon, PlusIcon, Trash2Icon } from 'lucide-react'
-
+import {
+  ArrowDownUpIcon,
+  CircleAlertIcon,
+  EllipsisVerticalIcon,
+  LockIcon,
+  PenIcon,
+  PlusIcon,
+  TrashIcon,
+} from 'lucide-react'
 import { ShotStatusIcon } from '@/components/project/scene-table/ShotStatusIcon.tsx'
 import { cn } from '@/lib/utils.ts'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu.tsx'
+import { Button } from '@/components/ui/button.tsx'
+import { ConfirmDeletionDialog } from '@/components/ui/ConfirmDeletionDialog.tsx'
+import { useState } from 'react'
 
 export function ShotTableRow({
   shotId,
@@ -47,6 +63,7 @@ export function ShotTableRow({
     },
   )
   const deleteShot = useMutation(api.shots.deleteShot)
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
 
   const shotFullCode = shotCode(sceneNumber, shotNumber)
 
@@ -197,13 +214,32 @@ export function ShotTableRow({
         className={shot.status === 'animated' ? 'opacity-50' : ''}
         onUpdate={value => void updateShot({ shotId, data: { notes: value } })}
       />
-      <div className="col-start-6 self-stretch hover:bg-red-900">
-        <button
-          onClick={() => void deleteShot({ shotId })}
-          className={'h-full min-h-10 w-10 p-2 grid place-items-center text-sm text-slate-500 hover:text-red-100'}
-        >
-          <Trash2Icon size={20} strokeWidth={1.5}/>
-        </button>
+      <div className="col-start-6 self-stretch">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant={'ghost'}>
+              <EllipsisVerticalIcon />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align={'end'}>
+            <DropdownMenuItem
+              variant={'destructive'}
+              className={'no-default-focus-ring'}
+              onSelect={() => setDeleteDialogOpen(true)}
+            >
+              <TrashIcon />
+              Delete
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+
+        {<ConfirmDeletionDialog
+          open={deleteDialogOpen}
+          title={`Delete Shot '${shotFullCode}'?`}
+          body={`The shot will be permanently deleted and can not be restored.`}
+          onOpenChange={setDeleteDialogOpen}
+          onDeleteClicked={() => void deleteShot({ shotId })}
+        />}
       </div>
     </>
   )

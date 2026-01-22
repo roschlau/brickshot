@@ -7,7 +7,16 @@ import { useMutation, useQuery } from 'convex/react'
 import { api } from '../../../../convex/_generated/api'
 import { byOrder } from '@/lib/sorting.ts'
 import { Skeleton } from '@/components/ui/skeleton.tsx'
-import { Trash2Icon } from 'lucide-react'
+import { EllipsisVerticalIcon, TrashIcon } from 'lucide-react'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu.tsx'
+import { Button } from '@/components/ui/button.tsx'
+import { useState } from 'react'
+import { ConfirmDeletionDialog } from '@/components/ui/ConfirmDeletionDialog.tsx'
 
 interface ShotViewModel {
   indexInScene: number,
@@ -22,6 +31,7 @@ export function SceneTable({ sceneId, sceneIndex, shotStatusFilter }: {
 }) {
   const scene = useQuery(api.scenes.get, { id: sceneId })
   const shots = useQuery(api.shots.getForScene, { sceneId })
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   if (scene && shots) {
     shots.sort(byOrder(scene.shotOrder, shot => shot._id))
   }
@@ -114,12 +124,32 @@ export function SceneTable({ sceneId, sceneIndex, shotStatusFilter }: {
           placeholder={'Scene ' + sceneNumber.toString()}
           onChange={(event) => void updateScene({ sceneId, data: { description: event.target.value } })}
         />
-        <button
-          className={'w-10 grid place-items-center text-sm text-slate-500 hover:text-red-100 hover:bg-red-900 self-stretch'}
-          onClick={() => void deleteScene({ sceneId })}
-        >
-          <Trash2Icon size={20} strokeWidth={1.5}/>
-        </button>
+
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant={'ghost'}>
+              <EllipsisVerticalIcon />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align={'end'}>
+            <DropdownMenuItem
+              variant={'destructive'}
+              className={'no-default-focus-ring'}
+              onSelect={() => setDeleteDialogOpen(true)}
+            >
+              <TrashIcon />
+              Delete
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+
+        {scene && <ConfirmDeletionDialog
+          open={deleteDialogOpen}
+          title={`Delete Scene '${scene.description || sceneNumber.toString()}'?`}
+          body={`The scene will be permanently deleted and can not be restored.`}
+          onOpenChange={setDeleteDialogOpen}
+          onDeleteClicked={() => void deleteScene({ sceneId })}
+        />}
       </div>
       {shotTableRows ?? <LoadingShotTableRow/>}
       <button

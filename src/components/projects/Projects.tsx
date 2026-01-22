@@ -9,16 +9,6 @@ import { DownloadIcon, EllipsisVerticalIcon, SearchIcon, TrashIcon } from 'lucid
 import { AccountControls } from '@/AccountControls.tsx'
 import { Spinner } from '@/components/ui/spinner.tsx'
 import {
-  AlertDialog,
-  AlertDialogActionDestructive,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog'
-import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -32,6 +22,7 @@ import { displayFullTime, displayRelativeTime } from '@/lib/time.ts'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip.tsx'
 import { byDesc } from '@/lib/sorting.ts'
 import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group.tsx'
+import { ConfirmDeletionDialog } from '@/components/ui/ConfirmDeletionDialog.tsx'
 
 export function Projects({
   onProjectSelected,
@@ -178,44 +169,14 @@ function ProjectTile({
             </DropdownMenuContent>
           </DropdownMenu>
         </ItemActions>
-        <DeleteProjectDialog
+        <ConfirmDeletionDialog
           open={deleteDialogOpen}
-          projectName={projectName}
+          title={`Delete Project '${projectName}'?`}
+          body={`The project and its data will be permanently deleted and can not be restored.`}
           onOpenChange={setDeleteDialogOpen}
           onDeleteClicked={() => void deleteProject({ projectId })}
         />
       </Item>
     </li>
-  )
-}
-
-function DeleteProjectDialog({
-  open,
-  projectName,
-  onOpenChange,
-  onDeleteClicked,
-}: {
-  open: boolean,
-  projectName: string,
-  onOpenChange: (open: boolean) => void,
-  onDeleteClicked: () => void,
-}) {
-  return (
-    <AlertDialog open={open} onOpenChange={onOpenChange}>
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>Delete Project &apos;{projectName}&apos;?</AlertDialogTitle>
-          <AlertDialogDescription>
-            The project and its data will be permanently deleted and can not be restored.
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogActionDestructive onClick={onDeleteClicked}>
-            Delete
-          </AlertDialogActionDestructive>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
   )
 }
