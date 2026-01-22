@@ -52,7 +52,7 @@ export function SceneTable({ sceneId, sceneIndex, shotStatusFilter }: {
   const deleteScene = useMutation(api.scenes.deleteScene)
 
   const lockedShotNumbers = shots
-    ?.map(it => it.lockedNumber).filter((it): it is number => it !== null)
+      ?.map(it => it.lockedNumber).filter((it): it is number => it !== null)
     ?? []
   const shotNumbers: Record<number, number> = {}
   const sceneNumber = getSceneNumber(scene ?? { lockedNumber: null }, sceneIndex)
@@ -76,25 +76,28 @@ export function SceneTable({ sceneId, sceneIndex, shotStatusFilter }: {
         shotData: shot,
       } satisfies ShotViewModel
     })
+
+  const swapShots = async (aIndex: number, bIndex: number) => {
+    if (!scene) {
+      throw Error()
+    }
+    if (aIndex >= scene.shotOrder.length || bIndex >= scene.shotOrder.length || aIndex < 0 || bIndex < 0) {
+      throw Error(`swapShots: Indices ${aIndex}, ${bIndex} not in range 0..${scene.shotOrder.length - 1}`)
+    }
+    const newShotOrder = scene.shotOrder.slice()
+    const aId = newShotOrder[aIndex]
+    const bId = newShotOrder[bIndex]
+    if (bId === undefined || aId === undefined) {
+      throw Error()
+    }
+    newShotOrder[aIndex] = bId
+    newShotOrder[bIndex] = aId
+    await updateScene({ sceneId, data: { shotOrder: newShotOrder } })
+  }
+
   const shotTableRows = shotViewModels
     ?.filter(({ shotData }) => shotStatusFilter.length === 0 || shotStatusFilter.includes(shotData.status))
     .map(({ shotData, indexInScene, shotNumber }) => {
-      const swapWithPrevious = async () => {
-        if (!scene) {
-          throw Error()
-        }
-        const newShotOrder = scene.shotOrder.slice()
-        const previous = newShotOrder[indexInScene - 1]
-        const current = newShotOrder[indexInScene]
-        console.log('ROBIN', `swapWithPrevious`, indexInScene, previous, current, newShotOrder)
-        if (current === undefined || previous === undefined) {
-          throw Error()
-        }
-        newShotOrder[indexInScene - 1] = current
-        newShotOrder[indexInScene] = previous
-        console.log('ROBIN', `swapWithPrevious`, newShotOrder)
-        await updateScene({ sceneId, data: { shotOrder: newShotOrder } })
-      }
       return (
         <ShotTableRow
           key={shotData._id}
@@ -104,7 +107,8 @@ export function SceneTable({ sceneId, sceneIndex, shotStatusFilter }: {
           showAddBeforeButton={shotStatusFilter.length === 0}
           showSwapButton={indexInScene > 0 && shotStatusFilter.length === 0}
           onAddBefore={() => void addNewShot(indexInScene)}
-          onSwapWithPrevious={() => void swapWithPrevious()}
+          onMoveUpClicked={indexInScene > 0 ? () => void swapShots(indexInScene, indexInScene - 1) : undefined}
+          onMoveDownClicked={scene && indexInScene < (scene.shotOrder.length - 1) ? () => void swapShots(indexInScene, indexInScene + 1) : undefined}
         />
       )
     })
@@ -151,13 +155,13 @@ export function SceneTable({ sceneId, sceneIndex, shotStatusFilter }: {
           onDeleteClicked={() => void deleteScene({ sceneId })}
         />}
       </div>
-      {shotTableRows ?? <LoadingShotTableRow/>}
+      {shotTableRows ?? <LoadingShotTableRow />}
       <button
         className={'col-start-1 col-span-full mb-4 rounded-b-md p-2 pb-3 text-start text-slate-300 enabled:hover:text-slate-100 enabled:hover:bg-slate-700'}
         disabled={!shots}
         onClick={() => void addNewShot(shots?.length ?? 0)}
       >
-        {shots ? '+ Add Shot' : <Skeleton className={'h-4 w-20'}/>}
+        {shots ? '+ Add Shot' : <Skeleton className={'h-4 w-20'} />}
       </button>
     </>
   )

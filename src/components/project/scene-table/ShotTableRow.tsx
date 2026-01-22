@@ -8,7 +8,8 @@ import { api } from '../../../../convex/_generated/api'
 import { Id } from '../../../../convex/_generated/dataModel'
 import { Skeleton } from '@/components/ui/skeleton.tsx'
 import {
-  ArrowDownUpIcon,
+  ArrowDownIcon,
+  ArrowDownUpIcon, ArrowUpIcon,
   CircleAlertIcon,
   EllipsisVerticalIcon,
   LockIcon,
@@ -35,7 +36,8 @@ export function ShotTableRow({
   showAddBeforeButton,
   showSwapButton,
   onAddBefore,
-  onSwapWithPrevious,
+  onMoveUpClicked,
+  onMoveDownClicked,
 }: {
   shotId: Id<'shots'>
   sceneNumber: number,
@@ -43,7 +45,8 @@ export function ShotTableRow({
   showAddBeforeButton: boolean,
   showSwapButton: boolean,
   onAddBefore: () => void,
-  onSwapWithPrevious: () => void,
+  onMoveUpClicked?: () => void,
+  onMoveDownClicked?: () => void,
 }) {
   const shot = useQuery(api.shots.get, { id: shotId })
   const updateShot = useMutation(api.shots.update).withOptimisticUpdate(
@@ -143,7 +146,7 @@ export function ShotTableRow({
         </button>}
         {showSwapButton && <button
           className={'absolute top-0 left-0 -translate-x-[200%] -translate-y-1/2 opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-foreground'}
-          onClick={onSwapWithPrevious}
+          onClick={onMoveUpClicked}
         >
           <ArrowDownUpIcon size={16} className={'m-0.5'}/>
         </button>}
@@ -222,6 +225,24 @@ export function ShotTableRow({
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align={'end'}>
+            <DropdownMenuItem
+              variant={'default'}
+              className={'no-default-focus-ring'}
+              disabled={onMoveUpClicked === undefined}
+              onSelect={() => onMoveUpClicked?.()}
+            >
+              <ArrowUpIcon />
+              Move Up
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              variant={'default'}
+              className={'no-default-focus-ring'}
+              disabled={onMoveDownClicked === undefined}
+              onSelect={() => onMoveDownClicked?.()}
+            >
+              <ArrowDownIcon />
+              Move Down
+            </DropdownMenuItem>
             <DropdownMenuItem
               variant={'destructive'}
               className={'no-default-focus-ring'}
