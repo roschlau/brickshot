@@ -8,6 +8,7 @@
     "convex": "bunx convex dev",
     "convex:dashboard": "bunx convex dashboard",
     "build": "bunx --bun vite build",
+    "deploy": "npx convex deploy --cmd 'npm run build'",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview"
   },
