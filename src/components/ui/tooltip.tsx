@@ -8,7 +8,7 @@ function SimpleTooltip({
   ...props
 }: {
   text: string,
-} & React.ComponentProps<typeof TooltipPrimitive.Root>) {
+} & React.ComponentProps<typeof TooltipTrigger>) {
   return (
     <Tooltip>
       <TooltipTrigger asChild {...props}/>

@@ -28,5 +28,10 @@ export default defineSchema({
     description: v.string(),
     location: v.union(v.string(), v.null()),
     notes: v.string(),
+    attachments: v.optional(v.array(v.id('attachments'))),
   }).index('by_scene', ['scene']),
+  attachments: defineTable({
+    storageId: v.id("_storage"),
+    owner: v.id('users'),
+  }),
 })

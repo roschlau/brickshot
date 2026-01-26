@@ -10,6 +10,24 @@ export const { auth, signIn, signOut, store, isAuthenticated } = convexAuth({
 
 export type Permission<T> = (ctx: QueryCtx) => Promise<T | null>
 
+export const all = <A, B>(
+  a: Permission<A>,
+  b: Permission<B>,
+): Permission<A & B> => async (ctx: QueryCtx) => {
+  const aResult = await a(ctx)
+  if (aResult === null) {
+    return null
+  }
+  const bResult = await b(ctx)
+  if (bResult === null) {
+    return null
+  }
+  return {
+    ...aResult,
+    ...bResult,
+  }
+}
+
 export const isLoggedIn = async (ctx: QueryCtx) => {
   const userId = await getAuthUserId(ctx)
   if (userId === null) return null

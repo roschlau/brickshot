@@ -1,6 +1,6 @@
 import { mutation, query } from './_generated/server'
 import { v } from 'convex/values'
-import { editScene, editShot, withPermission } from './auth'
+import { all, editScene, editShot, isLoggedIn, withPermission } from './auth'
 import { getManyFrom } from 'convex-helpers/server/relationships'
 
 import { vShotStatus } from './schema'
@@ -46,6 +46,7 @@ export const create = mutation({
         location: shot?.location ?? '',
         notes: '',
         lockedNumber: null,
+        attachments: [],
       })
       const shotOrder = (await ctx.db.get('scenes', sceneId))?.shotOrder ?? []
       shotOrder.splice(atIndex ?? shotOrder.length, 0, shotId)
@@ -73,6 +74,35 @@ export const update = mutation({
     },
   ),
 })
+
+export const generateAttachmentUploadUrl = mutation({
+  args: {},
+  handler: (ctx) => withPermission(ctx,
+    isLoggedIn,
+    async () => await ctx.storage.generateUploadUrl(),
+  ),
+})
+
+export const addAttachment = mutation({
+    args: {
+      storageId: v.id("_storage"),
+      shotId: v.id('shots'),
+    },
+    handler: (ctx, { storageId, shotId }) => withPermission(ctx,
+      all(isLoggedIn, editShot(shotId)),
+      async ({ userId, shot }) => {
+        const attachmentId = await ctx.db.insert('attachments', {
+          storageId,
+          owner: userId,
+        })
+        await ctx.db.patch('shots', shotId, {
+          attachments: (shot.attachments ?? []).concat(attachmentId)
+        })
+      },
+    ),
+  },
+)
+
 
 export const deleteShot = mutation({
   args: {

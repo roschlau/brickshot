@@ -9,9 +9,11 @@ import { Id } from '../../../../convex/_generated/dataModel'
 import { Skeleton } from '@/components/ui/skeleton.tsx'
 import {
   ArrowDownIcon,
-  ArrowDownUpIcon, ArrowUpIcon,
+  ArrowDownUpIcon,
+  ArrowUpIcon,
   CircleAlertIcon,
   EllipsisVerticalIcon,
+  ImagePlusIcon,
   LockIcon,
   PenIcon,
   PlusIcon,
@@ -28,6 +30,8 @@ import {
 import { Button } from '@/components/ui/button.tsx'
 import { ConfirmDeletionDialog } from '@/components/ui/ConfirmDeletionDialog.tsx'
 import { useState } from 'react'
+import { SimpleTooltip } from '@/components/ui/tooltip.tsx'
+import { SelectFileButton } from '@/components/ui/select-file-button.tsx'
 
 export function ShotTableRow({
   shotId,
@@ -142,13 +146,13 @@ export function ShotTableRow({
           className={'absolute top-0 left-0 -translate-x-full -translate-y-1/2 opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-foreground'}
           onClick={onAddBefore}
         >
-          <PlusIcon size={16} className={'m-0.5'}/>
+          <PlusIcon size={16} className={'m-0.5'} />
         </button>}
         {showSwapButton && <button
           className={'absolute top-0 left-0 -translate-x-[200%] -translate-y-1/2 opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-foreground'}
           onClick={onMoveUpClicked}
         >
-          <ArrowDownUpIcon size={16} className={'m-0.5'}/>
+          <ArrowDownUpIcon size={16} className={'m-0.5'} />
         </button>}
         <button
           onClick={() => void cycleStatus()}
@@ -164,7 +168,7 @@ export function ShotTableRow({
           data-tooltip-html={statusTooltip(shot.status)}
           data-tooltip-place={'bottom'}
         >
-          <ShotStatusIcon status={shot.status}/>
+          <ShotStatusIcon status={shot.status} />
         </button>
         <button
           onClick={() => void lockAndCopyShotCode()}
@@ -216,7 +220,18 @@ export function ShotTableRow({
         placeholder={'Add Notes'}
         className={shot.status === 'animated' ? 'opacity-50' : ''}
         onUpdate={value => void updateShot({ shotId, data: { notes: value } })}
-      />
+      >
+        <SimpleTooltip text={'Add attachment'}>
+          <SelectFileButton
+            aria-label={'Add attachment'}
+            variant={'ghost'}
+            className={'absolute right-0 top-0 text-muted-foreground hover:text-foreground'}
+            onFileSelected={(file) => console.log(file)}
+          >
+            <ImagePlusIcon />
+          </SelectFileButton>
+        </SimpleTooltip>
+      </EditableTextCell>
       <div className="col-start-6 self-stretch">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -268,10 +283,13 @@ export function ShotTableRow({
 
 export function LoadingShotTableRow() {
   return (<>
-    <div className={'col-start-1 h-10 min-w-12 justify-self-stretch px-2 py-3'}><Skeleton className={'size-full'} /></div>
-    <div className={'col-start-3 h-10 min-w-12 justify-self-stretch px-2 py-3'}><Skeleton className={'size-full'} /></div>
+    <div className={'col-start-1 h-10 min-w-12 justify-self-stretch px-2 py-3'}><Skeleton className={'size-full'} />
+    </div>
+    <div className={'col-start-3 h-10 min-w-12 justify-self-stretch px-2 py-3'}><Skeleton className={'size-full'} />
+    </div>
     <div className={'col-start-4 h-10 justify-self-stretch px-2 py-3'}><Skeleton className={'size-full'} /></div>
     <div className={'col-start-5 h-10 justify-self-stretch px-2 py-3'}><Skeleton className={'size-full'} /></div>
-    <div className={'col-start-6 h-10 min-w-10 justify-self-stretch px-2 py-3'}><Skeleton className={'size-full'} /></div>
+    <div className={'col-start-6 h-10 min-w-10 justify-self-stretch px-2 py-3'}><Skeleton className={'size-full'} />
+    </div>
   </>)
 }

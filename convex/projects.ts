@@ -154,6 +154,7 @@ export const importProject = mutation({
             description: shot.description,
             location: shot.location ?? '',
             notes: shot.notes,
+            attachments: [],
           }))
         }
         await ctx.db.patch(sceneId, { shotOrder })
