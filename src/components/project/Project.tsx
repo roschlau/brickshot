@@ -1,12 +1,13 @@
-import { Id } from '../../../convex/_generated/dataModel'
-import { useMutation, useQuery } from 'convex/react'
-import { api } from '../../../convex/_generated/api'
-import { useState } from 'react'
-import { ShotStatus } from '@/data-model/shot-status.ts'
-import { SceneTable } from '@/components/project/scene-table/SceneTable.tsx'
-import { getSceneNumber } from '@/data-model/codes.ts'
-import { Button } from '@/components/ui/button.tsx'
-import { StatusFilterSelector } from '@/StatusFilterSelector.tsx'
+import {Id} from '../../../convex/_generated/dataModel'
+import {useMutation, useQuery} from 'convex/react'
+import {api} from '../../../convex/_generated/api'
+import {useState} from 'react'
+import {ShotStatus} from '@/data-model/shot-status.ts'
+import {SceneTable} from '@/components/project/scene-table/SceneTable.tsx'
+import {getSceneNumber} from '@/data-model/codes.ts'
+import {Button} from '@/components/ui/button.tsx'
+import {StatusFilterSelector} from '@/StatusFilterSelector.tsx'
+import {EditableText} from '@/components/ui/editable-text.tsx'
 
 export function Project({
   projectId,
@@ -17,6 +18,18 @@ export function Project({
 }) {
   const project = useQuery(api.projects.getDetails, { projectId })
   const projectScenes = useQuery(api.scenes.getForProjectWithShots, { projectId }) ?? []
+  const updateProject = useMutation(api.projects.update).withOptimisticUpdate(
+    (localStore, { projectId, data }) => {
+      const currentValue = localStore.getQuery(api.projects.getDetails, { projectId })
+      if (!currentValue) {
+        return
+      }
+      localStore.setQuery(api.projects.getDetails, { projectId }, {
+        ...currentValue,
+        ...data,
+      })
+    }
+  )
   const createScene = useMutation(api.scenes.create)
 
   const [statusFilter, setStatusFilter] = useState<ShotStatus[]>([])
@@ -61,9 +74,11 @@ export function Project({
     <>
       <div className={'w-full max-w-(--breakpoint-xl) top-0 sticky z-10 flex flex-col px-6 pb-4 items-start'}>
         <div className={'w-full flex flex-row items-center mb-4 gap-2'}>
-          <h1 className="text-3xl my-4 grow">
-            {project?.name}
-          </h1>
+          <EditableText
+            className="text-3xl md:text-3xl my-4 -ml-3 grow"
+            value={project?.name ?? ''}
+            onChange={(e) => updateProject({ projectId, data: { name: e.target.value } })}
+          />
           <Button
             variant={'outline'}
             onClick={onCloseProjectClicked}
