@@ -1,21 +1,21 @@
 import {Id} from '../../../convex/_generated/dataModel'
 import {useMutation, useQuery} from 'convex/react'
 import {api} from '../../../convex/_generated/api'
-import {useState} from 'react'
+import {useEffect, useState} from 'react'
 import {ShotStatus} from '@/data-model/shot-status.ts'
 import {SceneTable} from '@/components/project/scene-table/SceneTable.tsx'
 import {getSceneNumber} from '@/data-model/codes.ts'
 import {Button} from '@/components/ui/button.tsx'
 import {StatusFilterSelector} from '@/StatusFilterSelector.tsx'
 import {EditableText} from '@/components/ui/editable-text.tsx'
+import {Link} from 'react-router'
 
 export function Project({
   projectId,
-  onCloseProjectClicked,
 }: {
   projectId: Id<'projects'>,
-  onCloseProjectClicked: () => void,
 }) {
+  const markOpened = useMutation(api.projects.markOpened)
   const project = useQuery(api.projects.getDetails, { projectId })
   const projectScenes = useQuery(api.scenes.getForProjectWithShots, { projectId }) ?? []
   const updateProject = useMutation(api.projects.update).withOptimisticUpdate(
@@ -28,9 +28,13 @@ export function Project({
         ...currentValue,
         ...data,
       })
-    }
+    },
   )
   const createScene = useMutation(api.scenes.create)
+
+  useEffect(() => {
+    void markOpened({ projectId })
+  }, [projectId])
 
   const [statusFilter, setStatusFilter] = useState<ShotStatus[]>([])
 
@@ -81,9 +85,11 @@ export function Project({
           />
           <Button
             variant={'outline'}
-            onClick={onCloseProjectClicked}
+            asChild
           >
-            Back to Projects
+            <Link to="/">
+              Back to Projects
+            </Link>
           </Button>
         </div>
         <div className={'self-stretch flex flex-row items-center'}>
@@ -92,7 +98,7 @@ export function Project({
             {sceneLinks}
           </div>
           <div className={'flex flex-row items-center'}>
-            <StatusFilterSelector selected={statusFilter} onChange={setStatusFilter} />
+            <StatusFilterSelector selected={statusFilter} onChange={setStatusFilter}/>
           </div>
         </div>
       </div>

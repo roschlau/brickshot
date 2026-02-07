@@ -1,36 +1,38 @@
-import { useMutation, useQuery } from 'convex/react'
-import { api } from '../../../convex/_generated/api'
-import { ProjectsEmptyState } from '@/components/projects/ProjectsEmptyState.tsx'
-import { Id } from '../../../convex/_generated/dataModel'
-import { Button } from '@/components/ui/button.tsx'
-import { Item, ItemActions, ItemContent, ItemDescription, ItemTitle } from '@/components/ui/item.tsx'
-import { Skeleton } from '@/components/ui/skeleton.tsx'
-import { DownloadIcon, EllipsisVerticalIcon, SearchIcon, TrashIcon } from 'lucide-react'
-import { AccountControls } from '@/AccountControls.tsx'
-import { Spinner } from '@/components/ui/spinner.tsx'
+import {useMutation, useQuery} from 'convex/react'
+import {api} from '../../../convex/_generated/api'
+import {ProjectsEmptyState} from '@/components/projects/ProjectsEmptyState.tsx'
+import {Id} from '../../../convex/_generated/dataModel'
+import {Button} from '@/components/ui/button.tsx'
+import {Item, ItemActions, ItemContent, ItemDescription, ItemTitle} from '@/components/ui/item.tsx'
+import {Skeleton} from '@/components/ui/skeleton.tsx'
+import {DownloadIcon, EllipsisVerticalIcon, SearchIcon, TrashIcon} from 'lucide-react'
+import {AccountControls} from '@/AccountControls.tsx'
+import {Spinner} from '@/components/ui/spinner.tsx'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu.tsx'
-import { useState } from 'react'
-import { CreateProjectButton } from '@/components/projects/CreateProjectButton.tsx'
+import {useState} from 'react'
+import {CreateProjectButton} from '@/components/projects/CreateProjectButton.tsx'
 import toast from 'react-hot-toast'
-import { saveFile } from '@/lib/files.ts'
-import { displayFullTime, displayRelativeTime } from '@/lib/time.ts'
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip.tsx'
-import { byDesc } from '@/lib/sorting.ts'
-import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group.tsx'
-import { ConfirmDeletionDialog } from '@/components/ui/ConfirmDeletionDialog.tsx'
+import {saveFile} from '@/lib/files.ts'
+import {displayFullTime, displayRelativeTime} from '@/lib/time.ts'
+import {Tooltip, TooltipContent, TooltipTrigger} from '@/components/ui/tooltip.tsx'
+import {byDesc} from '@/lib/sorting.ts'
+import {InputGroup, InputGroupAddon, InputGroupInput} from '@/components/ui/input-group.tsx'
+import {ConfirmDeletionDialog} from '@/components/ui/ConfirmDeletionDialog.tsx'
+import {Link, useNavigate} from 'react-router'
 
-export function Projects({
-  onProjectSelected,
-}: {
-  onProjectSelected: (projectId: Id<'projects'>) => void
-}) {
+export function Projects() {
   const projects = useQuery(api.projects.getAll)
   const [searchQuery, setSearchQuery] = useState<string>('')
+  const navigate = useNavigate()
+
+  const onProjectSelected = (projectId: Id<'projects'>) => {
+    navigate('/' + projectId)
+  }
 
   if (!projects) {
     return <Spinner className={'size-12'} />
@@ -71,7 +73,6 @@ export function Projects({
               key={project._id}
               projectId={project._id}
               projectName={project.name}
-              onOpenClicked={() => onProjectSelected(project._id)}
             />
           ))}
         </ul>
@@ -82,11 +83,9 @@ export function Projects({
 function ProjectTile({
   projectId,
   projectName,
-  onOpenClicked,
 }: {
   projectId: Id<'projects'>,
   projectName: string,
-  onOpenClicked: () => void,
 }) {
   const projectDetails = useQuery(api.projects.getDetails, { projectId })
   const deleteProject = useMutation(api.projects.deleteProject)
@@ -114,12 +113,13 @@ function ProjectTile({
     <li>
       <Item variant={'outline'}>
         <ItemContent>
-          <ItemTitle
-            className={'cursor-pointer'}
-            onClick={onOpenClicked}
-          >
-            {projectName}
-          </ItemTitle>
+          <Link to={'/?p=' + projectId}>
+            <ItemTitle
+              className={'cursor-pointer'}
+            >
+              {projectName}
+            </ItemTitle>
+          </Link>
           {projectDetails
             ? <ItemDescription className={'cursor-default'}>
               <span>{projectDetails.scenesCount.toString()} Scene(s)</span>
@@ -139,9 +139,9 @@ function ProjectTile({
         <ItemActions>
           <Button
             variant={'outline'}
-            onClick={onOpenClicked}
+            asChild
           >
-            Open
+            <Link to={'/?p=' + projectId}>Open</Link>
           </Button>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>

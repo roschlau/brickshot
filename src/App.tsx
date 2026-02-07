@@ -1,24 +1,15 @@
-import { useState } from 'react'
-import { useMutation } from 'convex/react'
-import { api } from '../convex/_generated/api'
-import { Id } from '../convex/_generated/dataModel'
-import { Projects } from '@/components/projects/Projects.tsx'
-import { Project } from '@/components/project/Project.tsx'
+import {Projects} from '@/components/projects/Projects.tsx'
+import {Project} from '@/components/project/Project.tsx'
+import {useSearchParams} from 'react-router'
+import {Id} from '../convex/_generated/dataModel'
 
 function App() {
-  const [openedProjectId, setOpenedProjectId] = useState(null as Id<'projects'> | null)
-  const markOpened = useMutation(api.projects.markOpened)
-  const openProject = async (projectId: Id<'projects'>) => {
-    await markOpened({ projectId })
-    setOpenedProjectId(projectId)
-  }
+  const [params] = useSearchParams()
+  const openedProjectId = params.get('p') as Id<'projects'> | null
   if (openedProjectId) {
-    return <Project
-      projectId={openedProjectId}
-      onCloseProjectClicked={() => setOpenedProjectId(null)}
-    />
+    return <Project projectId={openedProjectId}/>
   } else {
-    return <Projects onProjectSelected={(id) => void openProject(id)}/>
+    return <Projects/>
   }
 }
 

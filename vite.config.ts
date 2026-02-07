@@ -8,7 +8,7 @@ export default defineConfig({
   build: {
     outDir: "docs",
   },
-  base: "/brickshot/",
+  base: "/brickshot",
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
