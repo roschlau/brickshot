@@ -31,7 +31,7 @@ export function Projects() {
   const navigate = useNavigate()
 
   const onProjectSelected = (projectId: Id<'projects'>) => {
-    navigate('/' + projectId)
+    navigate('/?p=' + projectId)
   }
 
   if (!projects) {
