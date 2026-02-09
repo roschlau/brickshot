@@ -1,9 +1,12 @@
 import { mutation, query } from './_generated/server'
 import { v } from 'convex/values'
-import { editScene, editShot, withPermission } from './auth'
-import { getManyFrom } from 'convex-helpers/server/relationships'
+import { all, editScene, editShot, isLoggedIn, withPermission } from './auth'
+import {getManyFrom, getOneFrom} from 'convex-helpers/server/relationships'
 
 import { vShotStatus } from './schema'
+import {asyncMap} from 'convex-helpers'
+import {isPresent} from '../src/lib/optionals'
+import {displayFileSize} from '../src/lib/storage'
 
 export const getForScene = query({
   args: {
@@ -24,7 +27,33 @@ export const get = query({
   handler: (ctx, args) => withPermission(ctx,
     editShot(args.id),
     async () => {
-      return await ctx.db.get('shots', args.id)
+      const shot = await ctx.db.get('shots', args.id)
+      if (!shot) return null
+      const attachments = shot.attachments ? await asyncMap(
+        shot.attachments,
+        attachment => ctx.db.get('attachments', attachment),
+      ) : []
+      const attachmentsWithUrls = (await asyncMap(
+        attachments,
+        async attachment => {
+          if (!attachment) return null
+          const meta = await ctx.db.system.get('_storage', attachment.storageId)
+          if (!meta) return null
+          const url = await ctx.storage.getUrl(meta._id)
+          if (!url) throw Error(`Couldn't get URL for attachment ${attachment._id}`)
+          return attachment ? {
+            _id: attachment._id,
+            filename: attachment.filename,
+            contentType: meta.contentType,
+            fileSizeDisplay: displayFileSize(meta.size),
+            url,
+          } : null
+        },
+      )).filter(isPresent)
+      return {
+        ...shot,
+        attachments: attachmentsWithUrls,
+      }
     }),
 })
 
@@ -46,6 +75,7 @@ export const create = mutation({
         location: shot?.location ?? '',
         notes: '',
         lockedNumber: null,
+        attachments: [],
       })
       const shotOrder = (await ctx.db.get('scenes', sceneId))?.shotOrder ?? []
       shotOrder.splice(atIndex ?? shotOrder.length, 0, shotId)
@@ -73,6 +103,40 @@ export const update = mutation({
     },
   ),
 })
+
+export const generateAttachmentUploadUrl = mutation({
+  args: {},
+  handler: (ctx) => withPermission(ctx,
+    isLoggedIn,
+    async () => await ctx.storage.generateUploadUrl(),
+  ),
+})
+
+export const addAttachment = mutation({
+    args: {
+      filename: v.string(),
+      storageId: v.id("_storage"),
+      shotId: v.id('shots'),
+    },
+    handler: (ctx, { filename, storageId, shotId }) => withPermission(ctx,
+      all(isLoggedIn, editShot(shotId)),
+      async ({ userId, shot }) => {
+        const existingAttachment = await getOneFrom(ctx.db, 'attachments', 'by_storageId', storageId)
+        if (existingAttachment) {
+          throw Error(`Attachment for storage Id ${storageId} already exists`)
+        }
+        const attachmentId = await ctx.db.insert('attachments', {
+          filename,
+          storageId,
+          owner: userId,
+        })
+        await ctx.db.patch('shots', shotId, {
+          attachments: (shot.attachments ?? []).concat(attachmentId)
+        })
+      },
+    ),
+  },
+)
 
 export const deleteShot = mutation({
   args: {

@@ -1,33 +1,37 @@
-import { shotCode } from '../../../data-model/codes.ts'
+import {shotCode} from '../../../data-model/codes.ts'
 import clipboard from 'clipboardy'
 import toast from 'react-hot-toast'
-import { nextStatus, statusTooltip } from '../../../data-model/shot-status.ts'
-import { EditableTextCell } from './EditableTextCell.tsx'
-import { useMutation, useQuery } from 'convex/react'
-import { api } from '../../../../convex/_generated/api'
-import { Id } from '../../../../convex/_generated/dataModel'
-import { Skeleton } from '@/components/ui/skeleton.tsx'
+import {nextStatus, statusTooltip} from '../../../data-model/shot-status.ts'
+import {EditableTextCell} from './EditableTextCell.tsx'
+import {useMutation, useQuery} from 'convex/react'
+import {api} from '../../../../convex/_generated/api'
+import {Id} from '../../../../convex/_generated/dataModel'
+import {Skeleton} from '@/components/ui/skeleton.tsx'
 import {
   ArrowDownIcon,
-  ArrowDownUpIcon, ArrowUpIcon,
+  ArrowDownUpIcon,
+  ArrowUpIcon,
   CircleAlertIcon,
-  EllipsisVerticalIcon,
+  EllipsisVerticalIcon, FileIcon, ImageIcon,
+  ImagePlusIcon,
   LockIcon,
   PenIcon,
   PlusIcon,
   TrashIcon,
 } from 'lucide-react'
-import { ShotStatusIcon } from '@/components/project/scene-table/ShotStatusIcon.tsx'
-import { cn } from '@/lib/utils.ts'
+import {ShotStatusIcon} from '@/components/project/scene-table/ShotStatusIcon.tsx'
+import {cn} from '@/lib/utils.ts'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu.tsx'
-import { Button } from '@/components/ui/button.tsx'
-import { ConfirmDeletionDialog } from '@/components/ui/ConfirmDeletionDialog.tsx'
-import { useState } from 'react'
+import {Button} from '@/components/ui/button.tsx'
+import {ConfirmDeletionDialog} from '@/components/ui/ConfirmDeletionDialog.tsx'
+import {useState} from 'react'
+import {SimpleTooltip} from '@/components/ui/tooltip.tsx'
+import {SelectFileButton} from '@/components/ui/select-file-button.tsx'
 
 export function ShotTableRow({
   shotId,
@@ -67,6 +71,9 @@ export function ShotTableRow({
   )
   const deleteShot = useMutation(api.shots.deleteShot)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+
+  const generateAttachmentUploadUrl = useMutation(api.shots.generateAttachmentUploadUrl)
+  const addAttachment = useMutation(api.shots.addAttachment)
 
   const shotFullCode = shotCode(sceneNumber, shotNumber)
 
@@ -124,17 +131,28 @@ export function ShotTableRow({
     await updateShot({ shotId, data: { status } })
   }
 
+  const handleFileSelected = async (file: File) => {
+    const uploadUrl = await generateAttachmentUploadUrl()
+    const result = await fetch(uploadUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': file.type },
+      body: file,
+    })
+    const { storageId } = await result.json()
+    await addAttachment({ filename: file.name, shotId, storageId })
+  }
+
   if (shot === null) {
     return (
       <div className={'col-start-1 col-span-full h-10 pl-4 gap-2 flex flex-row items-center text-destructive'}>
-        <CircleAlertIcon size={20} />
+        <CircleAlertIcon size={20}/>
         Shot {shotId} could not be loaded.
       </div>
     )
   }
 
   return (
-    !shot ? <LoadingShotTableRow /> : <>
+    !shot ? <LoadingShotTableRow/> : <>
       <div
         className={'col-start-1 grid grid-flow-col place-content-start items-center pl-2 group relative' + (shot.status === 'wip' ? ' bg-violet-900!' : '')}
       >
@@ -216,12 +234,39 @@ export function ShotTableRow({
         placeholder={'Add Notes'}
         className={shot.status === 'animated' ? 'opacity-50' : ''}
         onUpdate={value => void updateShot({ shotId, data: { notes: value } })}
-      />
+      >
+        <div className={'absolute right-0 top-0 flex flex-row items-center *:-ml-2'}>
+          {shot.attachments?.map(attachment => (
+            <SimpleTooltip text={`${attachment.filename} (${attachment.fileSizeDisplay})`}>
+              <Button variant={'ghost'} className={'text-muted-foreground hover:text-foreground'} asChild>
+                <a
+                  className={'p-2 rounded hover:bg-muted'}
+                  download={attachment.filename}
+                  href={attachment.url}
+                  target={'_blank'}
+                >
+                  {attachment.contentType?.startsWith('image') ? <ImageIcon size={16}/> : <FileIcon size={16}/>}
+                </a>
+              </Button>
+            </SimpleTooltip>
+          ))}
+          <SimpleTooltip text={'Add attachment'}>
+            <SelectFileButton
+              aria-label={'Add attachment'}
+              variant={'ghost'}
+              className={'text-muted-foreground hover:text-foreground'}
+              onFileSelected={handleFileSelected}
+            >
+              <ImagePlusIcon/>
+            </SelectFileButton>
+          </SimpleTooltip>
+        </div>
+      </EditableTextCell>
       <div className="col-start-6 self-stretch">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant={'ghost'}>
-              <EllipsisVerticalIcon />
+              <EllipsisVerticalIcon/>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align={'end'}>
@@ -231,7 +276,7 @@ export function ShotTableRow({
               disabled={onMoveUpClicked === undefined}
               onSelect={() => onMoveUpClicked?.()}
             >
-              <ArrowUpIcon />
+              <ArrowUpIcon/>
               Move Up
             </DropdownMenuItem>
             <DropdownMenuItem
@@ -240,7 +285,7 @@ export function ShotTableRow({
               disabled={onMoveDownClicked === undefined}
               onSelect={() => onMoveDownClicked?.()}
             >
-              <ArrowDownIcon />
+              <ArrowDownIcon/>
               Move Down
             </DropdownMenuItem>
             <DropdownMenuItem
@@ -248,7 +293,7 @@ export function ShotTableRow({
               className={'no-default-focus-ring'}
               onSelect={() => setDeleteDialogOpen(true)}
             >
-              <TrashIcon />
+              <TrashIcon/>
               Delete
             </DropdownMenuItem>
           </DropdownMenuContent>
@@ -268,10 +313,13 @@ export function ShotTableRow({
 
 export function LoadingShotTableRow() {
   return (<>
-    <div className={'col-start-1 h-10 min-w-12 justify-self-stretch px-2 py-3'}><Skeleton className={'size-full'} /></div>
-    <div className={'col-start-3 h-10 min-w-12 justify-self-stretch px-2 py-3'}><Skeleton className={'size-full'} /></div>
-    <div className={'col-start-4 h-10 justify-self-stretch px-2 py-3'}><Skeleton className={'size-full'} /></div>
-    <div className={'col-start-5 h-10 justify-self-stretch px-2 py-3'}><Skeleton className={'size-full'} /></div>
-    <div className={'col-start-6 h-10 min-w-10 justify-self-stretch px-2 py-3'}><Skeleton className={'size-full'} /></div>
+    <div className={'col-start-1 h-10 min-w-12 justify-self-stretch px-2 py-3'}><Skeleton className={'size-full'}/>
+    </div>
+    <div className={'col-start-3 h-10 min-w-12 justify-self-stretch px-2 py-3'}><Skeleton className={'size-full'}/>
+    </div>
+    <div className={'col-start-4 h-10 justify-self-stretch px-2 py-3'}><Skeleton className={'size-full'}/></div>
+    <div className={'col-start-5 h-10 justify-self-stretch px-2 py-3'}><Skeleton className={'size-full'}/></div>
+    <div className={'col-start-6 h-10 min-w-10 justify-self-stretch px-2 py-3'}><Skeleton className={'size-full'}/>
+    </div>
   </>)
 }

@@ -3,12 +3,31 @@ import GitHub from '@auth/core/providers/github'
 import { ConvexError } from 'convex/values'
 import { Id } from './_generated/dataModel'
 import { QueryCtx } from './_generated/server'
+import {getOneFrom} from 'convex-helpers/server/relationships'
 
 export const { auth, signIn, signOut, store, isAuthenticated } = convexAuth({
   providers: [GitHub],
 })
 
 export type Permission<T> = (ctx: QueryCtx) => Promise<T | null>
+
+export const all = <A, B>(
+  a: Permission<A>,
+  b: Permission<B>,
+): Permission<A & B> => async (ctx: QueryCtx) => {
+  const aResult = await a(ctx)
+  if (aResult === null) {
+    return null
+  }
+  const bResult = await b(ctx)
+  if (bResult === null) {
+    return null
+  }
+  return {
+    ...aResult,
+    ...bResult,
+  }
+}
 
 export const isLoggedIn = async (ctx: QueryCtx) => {
   const userId = await getAuthUserId(ctx)
@@ -36,6 +55,12 @@ export const editShot = (shotId: Id<'shots'>) => async (ctx: QueryCtx) => {
   const sceneResult = await editScene(shot.scene)(ctx)
   if (!sceneResult) return null
   return { ...sceneResult, shot }
+}
+
+export const ownsAttachment = (storageId: Id<'_storage'>) => async (ctx: QueryCtx) => {
+  const attachment = await getOneFrom(ctx.db, 'attachments', 'by_storageId', storageId)
+  if (!attachment) return null
+  return { attachment }
 }
 
 export async function withPermission<A, T>(
