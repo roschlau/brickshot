@@ -35,26 +35,36 @@ export function PrivacyDialog() {
           Nature of this project
         </h2>
         <p>
-          BrickShot is developed as a hobby project. As such it comes with no guarantees and may exhibit unexpected quirks or limitations.
+          BrickShot is developed as a hobby project. As such it comes with no guarantees and may exhibit unexpected bugs, quirks or limitations.
           If you are using it for anything important, frequently back up your projects to protect yourself against data loss due to bugs or other unexpected circumstances.
+        </p>
+        <h2>
+          Intellectual Property Rights
+        </h2>
+        <p>
+          BrickShot does not assume any rights or ownership over any data you store in BrickShot projects except as necessary to provide BrickShot's functionality to you.
         </p>
         <h2>
           Data Collection and Usage
         </h2>
         <p>
           BrickShot collects and processes only the necessary data to work correctly.
-          BrickShot does not show ads, profile your behavior, or sell your data to a third party.
+          It does not show ads, profile your behavior, or sell your data to a third party.
         </p>
         <p>
-          Users can optionally log in with an external identity provider to more easily access their projects across devices,
-          in which case limited user data like an email address, user name and a link to the identity provider are stored.
-          BrickShot does not store any passwords and does not gain access to the external account you are logging in with.
+          To protect the service against abuse and to enable access to projects across devices, users must log in with an external identity provider.
           The respective identity provider&#39;s privacy policy and terms of use apply to your use of their services.
-          Currently, GitHub is the only supported identity provider, more may be added in the future.
         </p>
         <p>
-          If you are logged in, your email address may be used to verify your identity, protect against abuse, and contact you regarding important matters related to your use of BrickShots.
+          On signup with an identity provider, BrickShot receives and stores your email address, user name and a link to the identity provider.
+          BrickShot does not store any passwords and does not gain access to the external account you are logging in with.
+        </p>
+        <p>
+          Your email address may be used to verify your identity, protect against abuse, and contact you regarding important matters related to your use of BrickShot.
           It will never be used to send you ads or other unsolicited emails.
+        </p>
+        <p>
+          Currently, GitHub is the only supported identity provider, more may be added in the future.
         </p>
         <h2>
           Convex
