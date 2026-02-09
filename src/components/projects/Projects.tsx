@@ -24,6 +24,7 @@ import {byDesc} from '@/lib/sorting.ts'
 import {InputGroup, InputGroupAddon, InputGroupInput} from '@/components/ui/input-group.tsx'
 import {ConfirmDeletionDialog} from '@/components/ui/ConfirmDeletionDialog.tsx'
 import {Link, useNavigate} from 'react-router'
+import {PrivacyDialog} from '@/components/projects/PrivacyDialog.tsx'
 
 export function Projects() {
   const projects = useQuery(api.projects.getAll)
@@ -76,6 +77,7 @@ export function Projects() {
             />
           ))}
         </ul>
+        <PrivacyDialog />
       </div>
     )
 }
