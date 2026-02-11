@@ -4,9 +4,10 @@ import { ConvexError } from 'convex/values'
 import { Id } from './_generated/dataModel'
 import { QueryCtx } from './_generated/server'
 import {getOneFrom} from 'convex-helpers/server/relationships'
+import Google from '@auth/core/providers/google'
 
 export const { auth, signIn, signOut, store, isAuthenticated } = convexAuth({
-  providers: [GitHub],
+  providers: [GitHub, Google],
 })
 
 export type Permission<T> = (ctx: QueryCtx) => Promise<T | null>

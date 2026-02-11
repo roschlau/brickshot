@@ -5,6 +5,7 @@ import { GithubIcon } from '@/icons/GithubIcon.tsx'
 import { LogOutIcon } from 'lucide-react'
 import { ComponentProps, useState } from 'react'
 import { Spinner } from '@/components/ui/spinner.tsx'
+import {GoogleIcon} from '@/icons/GoogleIcon.tsx'
 
 export function AccountControls({
   variant,
@@ -16,7 +17,8 @@ export function AccountControls({
     <>
       <AuthLoading>Loading...</AuthLoading>
       <Unauthenticated>
-        <SignInButton variant={variant} />
+        <GithubSignInButton variant={variant} />
+        <GoogleSignInButton variant={variant} />
       </Unauthenticated>
       <Authenticated>
         <Button
@@ -31,7 +33,7 @@ export function AccountControls({
   )
 }
 
-export function SignInButton({
+export function GithubSignInButton({
   variant,
 }: {
   variant?: ComponentProps<typeof Button>['variant']
@@ -46,6 +48,25 @@ export function SignInButton({
     <Button variant={variant ?? 'default'} onClick={clicked}>
       {loading ? <Spinner /> : <GithubIcon />}
       Sign in with GitHub
+    </Button>
+  )
+}
+
+export function GoogleSignInButton({
+  variant,
+}: {
+  variant?: ComponentProps<typeof Button>['variant']
+}) {
+  const { signIn } = useAuthActions()
+  const [loading, setLoading] = useState(false)
+  const clicked = () => {
+    setLoading(true)
+    void signIn('google')
+  }
+  return (
+    <Button variant={variant ?? 'default'} onClick={clicked}>
+      {loading ? <Spinner /> : <GoogleIcon/>}
+      Sign in with Google
     </Button>
   )
 }

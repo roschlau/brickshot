@@ -1,12 +1,10 @@
-import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@/components/ui/empty.tsx'
-import { FolderOpenIcon, PlusIcon } from 'lucide-react'
-import { Authenticated, Unauthenticated } from 'convex/react'
-import { Button } from '@/components/ui/button.tsx'
-import { AccountControls } from '@/AccountControls.tsx'
-import { PrivacyDialog } from '@/components/projects/PrivacyDialog.tsx'
-import { SimpleTooltip } from '@/components/ui/tooltip.tsx'
-import { CreateProjectButton } from '@/components/projects/CreateProjectButton.tsx'
-import { Id } from '../../../convex/_generated/dataModel'
+import {Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle} from '@/components/ui/empty.tsx'
+import {FolderOpenIcon} from 'lucide-react'
+import {Authenticated, Unauthenticated} from 'convex/react'
+import {AccountControls} from '@/AccountControls.tsx'
+import {PrivacyDialog} from '@/components/projects/PrivacyDialog.tsx'
+import {CreateProjectButton} from '@/components/projects/CreateProjectButton.tsx'
+import {Id} from '../../../convex/_generated/dataModel'
 
 export function ProjectsEmptyState({
   onProjectCreated,
@@ -40,16 +38,6 @@ export function ProjectsEmptyState({
               onProjectCreated={onProjectCreated}
             />
           </Authenticated>
-          <Unauthenticated>
-            <SimpleTooltip text={'Log in to create a project'}>
-              <span>
-                <Button disabled>
-                  <PlusIcon />
-                  Create Project
-                </Button>
-              </span>
-            </SimpleTooltip>
-          </Unauthenticated>
         </div>
         <PrivacyDialog />
       </EmptyContent>
