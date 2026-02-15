@@ -1,11 +1,15 @@
-import { useAuthActions } from '@convex-dev/auth/react'
-import { Authenticated, AuthLoading, Unauthenticated } from 'convex/react'
-import { Button } from '@/components/ui/button.tsx'
-import { GithubIcon } from '@/icons/GithubIcon.tsx'
-import { LogOutIcon } from 'lucide-react'
-import { ComponentProps, useState } from 'react'
-import { Spinner } from '@/components/ui/spinner.tsx'
+import {useAuthActions} from '@convex-dev/auth/react'
+import {Authenticated, AuthLoading, Unauthenticated} from 'convex/react'
+import {Button} from '@/components/ui/button.tsx'
+import {GithubIcon} from '@/icons/GithubIcon.tsx'
+import {LogOutIcon} from 'lucide-react'
+import {ComponentProps, ReactNode, useState} from 'react'
+import {Spinner} from '@/components/ui/spinner.tsx'
 import {GoogleIcon} from '@/icons/GoogleIcon.tsx'
+import {SimpleTooltip} from '@/components/ui/tooltip.tsx'
+import {useLocalStorage} from 'usehooks-ts'
+
+const LAST_AUTH_PROVIDER_KEY = 'auth:lastProvider'
 
 export function AccountControls({
   variant,
@@ -17,15 +21,15 @@ export function AccountControls({
     <>
       <AuthLoading>Loading...</AuthLoading>
       <Unauthenticated>
-        <GithubSignInButton variant={variant} />
-        <GoogleSignInButton variant={variant} />
+        <GithubSignInButton variant={variant}/>
+        <GoogleSignInButton variant={variant}/>
       </Unauthenticated>
       <Authenticated>
         <Button
           onClick={() => void signOut()}
           variant="outline"
         >
-          <LogOutIcon />
+          <LogOutIcon/>
           Sign out
         </Button>
       </Authenticated>
@@ -33,40 +37,63 @@ export function AccountControls({
   )
 }
 
-export function GithubSignInButton({
-  variant,
-}: {
+type AuthProvider = 'github' | 'google'
+
+function SignInButton({ variant, provider, label, icon }: {
   variant?: ComponentProps<typeof Button>['variant']
+  provider: AuthProvider
+  label: string
+  icon: ReactNode,
 }) {
   const { signIn } = useAuthActions()
   const [loading, setLoading] = useState(false)
-  const clicked = () => {
+  const [lastProvider, setLastProvider] = useLocalStorage(LAST_AUTH_PROVIDER_KEY, null as AuthProvider | null)
+  const clicked = async () => {
     setLoading(true)
-    void signIn('github')
+    await signIn(provider)
+    setLastProvider(provider)
   }
+  const button = <Button
+    variant={variant ?? 'default'}
+    onClick={clicked}
+    className={lastProvider === provider ? 'outline outline-primary' : ''}
+  >
+    {loading ? <Spinner/> : icon}
+    {label}
+  </Button>
   return (
-    <Button variant={variant ?? 'default'} onClick={clicked}>
-      {loading ? <Spinner /> : <GithubIcon />}
-      Sign in with GitHub
-    </Button>
+    <div className="relative inline-flex">
+      {lastProvider === provider ? (
+        <SimpleTooltip text={'Last Used'}>
+          {button}
+        </SimpleTooltip>
+      ) : button}
+    </div>
   )
 }
 
-export function GoogleSignInButton({
-  variant,
-}: {
+export function GithubSignInButton({ variant }: {
   variant?: ComponentProps<typeof Button>['variant']
 }) {
-  const { signIn } = useAuthActions()
-  const [loading, setLoading] = useState(false)
-  const clicked = () => {
-    setLoading(true)
-    void signIn('google')
-  }
   return (
-    <Button variant={variant ?? 'default'} onClick={clicked}>
-      {loading ? <Spinner /> : <GoogleIcon/>}
-      Sign in with Google
-    </Button>
+    <SignInButton
+      variant={variant}
+      provider="github"
+      label="Sign in with GitHub"
+      icon={<GithubIcon/>}
+    />
+  )
+}
+
+export function GoogleSignInButton({ variant }: {
+  variant?: ComponentProps<typeof Button>['variant']
+}) {
+  return (
+    <SignInButton
+      variant={variant}
+      provider="google"
+      label="Sign in with Google"
+      icon={<GoogleIcon/>}
+    />
   )
 }
