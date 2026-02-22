@@ -6,8 +6,8 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog.tsx'
-import { Button } from '@/components/ui/button.tsx'
-import { ShieldQuestionMarkIcon } from 'lucide-react'
+import {Button} from '@/components/ui/button.tsx'
+import {ShieldQuestionMarkIcon} from 'lucide-react'
 
 export function PrivacyDialog() {
   return (
@@ -18,13 +18,13 @@ export function PrivacyDialog() {
           className="text-muted-foreground"
           size="sm"
         >
-          <ShieldQuestionMarkIcon /> Privacy Policy
+          <ShieldQuestionMarkIcon /> Terms / Privacy
         </Button>
       </DialogTrigger>
       <DialogContent className={'prose dark:prose-invert prose-sm prose-slate gap-0'}>
         <DialogHeader>
           <DialogTitle asChild>
-            <h1>BrickShot Privacy Policy</h1>
+            <h1>BrickShot Terms of Use and Privacy Policy</h1>
           </DialogTitle>
           <DialogDescription>
             These terms apply to BrickShot, a free tool for managing shot lists for short films.
@@ -52,7 +52,8 @@ export function PrivacyDialog() {
           It does not show ads, profile your behavior, or sell your data to a third party.
         </p>
         <p>
-          To protect the service against abuse and to enable access to projects across devices, users must log in with an external identity provider.
+          To protect the service against abuse and to enable access to projects across devices, users must log in with a supported external identity provider.
+          Currently, Google and GitHub are supported as identity providers. More may be added in the future.
           The respective identity provider&#39;s privacy policy and terms of use apply to your use of their services.
         </p>
         <p>
@@ -63,14 +64,11 @@ export function PrivacyDialog() {
           Your email address may be used to verify your identity, protect against abuse, and contact you regarding important matters related to your use of BrickShot.
           It will never be used to send you ads or other unsolicited emails.
         </p>
-        <p>
-          Currently, GitHub is the only supported identity provider, more may be added in the future.
-        </p>
         <h2>
           Convex
         </h2>
         <p>
-          BrickShot uses <a href="https://www.convex.dev/" target="_blank" rel="noreferrer">Convex Systems, Inc.</a> (&quot;Convex&quot;) to provide backend infrastructure and storage.
+          BrickShot uses services of <a href="https://www.convex.dev/" target="_blank" rel="noreferrer">Convex Systems, Inc.</a> (&quot;Convex&quot;) to provide backend infrastructure and storage.
           In this capacity, Convex stores and processes the data you provide on BrickShot&apos;s behalf, subject to Convex&apos;s <a href="https://www.convex.dev/legal/dpa/" target="_blank" rel="noreferrer">Data Processing Agreement.</a>
         </p>
       </DialogContent>
