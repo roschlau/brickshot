@@ -10,6 +10,7 @@
 
 import type * as attachments from '../attachments.js'
 import type * as auth from '../auth.js'
+import type * as crons from '../crons.js'
 import type * as http from '../http.js'
 import type * as projects from '../projects.js'
 import type * as scenes from '../scenes.js'
@@ -20,6 +21,7 @@ import type {ApiFromModules, FilterApi, FunctionReference} from 'convex/server'
 declare const fullApi: ApiFromModules<{
   attachments: typeof attachments;
   auth: typeof auth;
+  crons: typeof crons;
   http: typeof http;
   projects: typeof projects;
   scenes: typeof scenes;

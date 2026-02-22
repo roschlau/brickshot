@@ -1,4 +1,4 @@
-import {DatabaseReader, MutationCtx} from './_generated/server'
+import {DatabaseReader, internalMutation, MutationCtx} from './_generated/server'
 import {getManyFrom, getOneFrom} from 'convex-helpers/server/relationships'
 import {Id} from './_generated/dataModel'
 import {asyncMap} from 'convex-helpers'
@@ -34,3 +34,20 @@ export async function deleteAttachment(ctx: MutationCtx, attachmentId: Id<'attac
   await ctx.storage.delete(attachment.storageId)
   await ctx.db.delete(attachmentId)
 }
+
+/**
+ * Deletes all uploaded files older than a day that are not referenced by an entry in the attachments table.
+ */
+export const deleteOrphanedFiles = internalMutation({
+  handler: async ({ db, storage }) => {
+    const cutoff = Date.now() - 1000 * 60 * 60 * 24 // Only checking files that are older than a day
+    const oldFiles = db.system.query('_storage')
+      .filter(q => q.lt(q.field('_creationTime'), cutoff))
+    for await (const file of oldFiles) {
+      const attachment = await getOneFrom(db, 'attachments', 'by_storageId', file._id)
+      if (!attachment) {
+        await storage.delete(file._id)
+      }
+    }
+  },
+})
