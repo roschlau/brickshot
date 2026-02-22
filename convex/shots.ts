@@ -1,12 +1,14 @@
-import { mutation, query } from './_generated/server'
-import { v } from 'convex/values'
-import { all, editScene, editShot, isLoggedIn, withPermission } from './auth'
+import {mutation, query} from './_generated/server'
+import {v} from 'convex/values'
+import {all, editScene, editShot, isLoggedIn, withPermission} from './auth'
 import {getManyFrom, getOneFrom} from 'convex-helpers/server/relationships'
 
-import { vShotStatus } from './schema'
+import {vShotStatus} from './schema'
 import {asyncMap} from 'convex-helpers'
 import {isPresent} from '../src/lib/optionals'
 import {displayFileSize} from '../src/lib/storage'
+import {getUserLimits} from './userLimits'
+import {literals} from 'convex-helpers/validators'
 
 export const getForScene = query({
   args: {
@@ -108,16 +110,23 @@ export const generateAttachmentUploadUrl = mutation({
   args: {},
   handler: (ctx) => withPermission(ctx,
     isLoggedIn,
-    async () => await ctx.storage.generateUploadUrl(),
+    async ({ userId }) => {
+      const userLimits = await getUserLimits(ctx.db, userId)
+      if (userLimits.remainingTotalStorageBytes <= 0) {
+        throw Error(`User ${userId} has reached their storage limit`)
+      }
+      return await ctx.storage.generateUploadUrl()
+    },
   ),
 })
 
 export const addAttachment = mutation({
     args: {
       filename: v.string(),
-      storageId: v.id("_storage"),
+      storageId: v.id('_storage'),
       shotId: v.id('shots'),
     },
+    returns: literals('success', 'file_size_exceeded', 'total_size_exceeded'),
     handler: (ctx, { filename, storageId, shotId }) => withPermission(ctx,
       all(isLoggedIn, editShot(shotId)),
       async ({ userId, shot }) => {
@@ -125,14 +134,30 @@ export const addAttachment = mutation({
         if (existingAttachment) {
           throw Error(`Attachment for storage Id ${storageId} already exists`)
         }
+        const storageMeta = await ctx.db.system.get('_storage', storageId)
+        if (!storageMeta) {
+          throw Error(`Storage metadata not found for storage Id ${storageId}`)
+        }
+        const userLimits = await getUserLimits(ctx.db, userId)
+        if (storageMeta.size > userLimits.maxShotAttachmentBytes) {
+          await ctx.storage.delete(storageId)
+          console.warn(`File size exceeds attachment size limit for storage Id ${storageId}`)
+          return 'file_size_exceeded'
+        }
+        if (storageMeta.size > userLimits.remainingTotalStorageBytes) {
+          await ctx.storage.delete(storageId)
+          console.warn(`File size exceeds total user storage limit for storage Id ${storageId}`)
+          return 'total_size_exceeded'
+        }
         const attachmentId = await ctx.db.insert('attachments', {
           filename,
           storageId,
           owner: userId,
         })
         await ctx.db.patch('shots', shotId, {
-          attachments: (shot.attachments ?? []).concat(attachmentId)
+          attachments: (shot.attachments ?? []).concat(attachmentId),
         })
+        return 'success'
       },
     ),
   },

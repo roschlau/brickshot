@@ -12,7 +12,9 @@ import {
   ArrowDownUpIcon,
   ArrowUpIcon,
   CircleAlertIcon,
-  EllipsisVerticalIcon, FileIcon, ImageIcon,
+  EllipsisVerticalIcon,
+  FileIcon,
+  ImageIcon,
   ImagePlusIcon,
   LockIcon,
   PenIcon,
@@ -133,13 +135,18 @@ export function ShotTableRow({
 
   const handleFileSelected = async (file: File) => {
     const uploadUrl = await generateAttachmentUploadUrl()
-    const result = await fetch(uploadUrl, {
+    const uploadResult = await fetch(uploadUrl, {
       method: 'POST',
-      headers: { 'Content-Type': file.type },
+      headers: { 'Content-Type': file.type || 'application/octet-stream' },
       body: file,
     })
-    const { storageId } = await result.json()
-    await addAttachment({ filename: file.name, shotId, storageId })
+    const { storageId } = await uploadResult.json()
+    const result = await addAttachment({ filename: file.name, shotId, storageId })
+    if (result === 'file_size_exceeded') {
+      toast.error(`This file exceeds the maximum file size limit for your account.`)
+    } else if (result === 'total_size_exceeded') {
+      toast.error(`You've used up too much file storage to attach this file.`)
+    }
   }
 
   if (shot === null) {

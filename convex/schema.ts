@@ -1,15 +1,20 @@
-import { defineSchema, defineTable } from 'convex/server'
-import { v } from 'convex/values'
-import { authTables } from '@convex-dev/auth/server'
-import { literals } from 'convex-helpers/validators'
-import { shotStatusValues } from '../src/data-model/shot-status'
-import { z } from 'zod'
+import {defineSchema, defineTable} from 'convex/server'
+import {v} from 'convex/values'
+import {authTables} from '@convex-dev/auth/server'
+import {literals} from 'convex-helpers/validators'
+import {shotStatusValues} from '../src/data-model/shot-status'
+import {z} from 'zod'
 
 export const vShotStatus = literals(...shotStatusValues)
 export const zShotStatus = z.literal(shotStatusValues)
 
 export default defineSchema({
   ...authTables,
+  userLimits: defineTable({
+    userId: v.id('users'),
+    maxShotAttachmentBytes: v.number(),
+    maxTotalStorageBytes: v.number(),
+  }).index('by_userId', ['userId']),
   projects: defineTable({
     name: v.string(),
     owner: v.id('users'),
@@ -34,5 +39,6 @@ export default defineSchema({
     filename: v.string(),
     storageId: v.id("_storage"),
     owner: v.id('users'),
-  }).index('by_storageId', ['storageId']),
+  }).index('by_storageId', ['storageId'])
+    .index('by_owner', ['owner']),
 })
