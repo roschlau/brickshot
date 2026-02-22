@@ -237,7 +237,7 @@ export function ShotTableRow({
       >
         <div className={'absolute right-0 top-0 flex flex-row items-center *:-ml-2'}>
           {shot.attachments?.map(attachment => (
-            <SimpleTooltip text={`${attachment.filename} (${attachment.fileSizeDisplay})`}>
+            <SimpleTooltip key={attachment._id} text={`${attachment.filename} (${attachment.fileSizeDisplay})`}>
               <Button variant={'ghost'} className={'text-muted-foreground hover:text-foreground'} asChild>
                 <a
                   className={'p-2 rounded hover:bg-muted'}
