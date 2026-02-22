@@ -7,7 +7,7 @@ import {vShotStatus} from './schema'
 import {asyncMap} from 'convex-helpers'
 import {isPresent} from '../src/lib/optionals'
 import {displayFileSize} from '../src/lib/storage'
-import {getUserLimits} from './userLimits'
+import {deleteAttachment, getUserLimits} from './attachments'
 import {literals} from 'convex-helpers/validators'
 
 export const getForScene = query({
@@ -172,11 +172,18 @@ export const deleteShot = mutation({
     async () => {
       const shot = await ctx.db.get('shots', shotId)
       if (!shot) return
+      // Remove shot from scene's shot order
       const shotOrder = (await ctx.db.get('scenes', shot.scene))?.shotOrder
       if (shotOrder?.includes(shotId)) {
         shotOrder.splice(shotOrder.indexOf(shotId), 1)
         await ctx.db.patch(shot.scene, { shotOrder })
       }
+      // Delete attachments
+      const attachments = shot.attachments ?? []
+      for (const attachmentId of attachments) {
+        await deleteAttachment(ctx, attachmentId)
+      }
+      // Delete Shot
       await ctx.db.delete(shotId)
     },
   ),
